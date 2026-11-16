@@ -1,6 +1,7 @@
 // DASH v2 · 页面逻辑：状态页（3D 机库 + 大数字 + 注意栏 + 详情抽屉）、模型页（切换台 + 长按确认 + 进度时间线）
 import { connect } from './data.js?v=__BUILD__';
 import { createScene, statusOf, STATUS_COLOR } from './scene.js?v=__BUILD__';
+import { CATS, catOf, catName, icon, iconG } from './icons.js?v=__BUILD__';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -15,13 +16,14 @@ let view = 'status', picked = null, drawerId = null, lastUpdate = Date.now();
 
 // ---------------- 路由 / 顶栏 ----------------
 function go(next, opts = {}) {
-  view = next === 'models' ? 'models' : 'status';
+  view = next === 'models' || next === 'projects' ? next : 'status';
   document.body.dataset.view = view;
   document.querySelectorAll('.tabs button').forEach((b) => (b.dataset.go === view ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')));
   moveInk();
   if (history.replaceState) history.replaceState(null, '', `#${view}${location.search ? '' : ''}`);
-  scene?.setView(view); requestAnimationFrame(() => updateInsets());
+  scene?.setView(view === 'status' ? 'status' : 'models'); requestAnimationFrame(() => updateInsets());   // 项目页沿用模型页的虚化宇宙中心背景
   if (view === 'models') { closeDrawer(); renderModels(); if (opts.flash) flashSlot(opts.flash); }
+  if (view === 'projects') { closeDrawer(); renderProjects(true); }
   hideHover();
 }
 function moveInk() {
@@ -32,7 +34,7 @@ function moveInk() {
 document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => go(b.dataset.go)));
 addEventListener('keydown', (e) => {
   if (e.target.closest('input,textarea')) return;
-  if (e.key === '1') go('status'); else if (e.key === '2') go('models');
+  if (e.key === '1') go('status'); else if (e.key === '2') go('models'); else if (e.key === '3') go('projects');
   else if (e.key === 'Escape') { if (picked) closeConfirm(); else closeDrawer(); }
   else if (drawerId && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) step(e.key === 'ArrowRight' ? 1 : -1);
 });
@@ -58,7 +60,7 @@ function updateInsets(ms = 0) {
     else if (!document.body.classList.contains('is-detail')) scene.setInsets({ t: 16, r: 10, b: 10, l: 10 }, ms);
     return;
   }
-  if (view === 'models') { scene.setInsets({ t: 0, r: 0, b: 0, l: 0 }, ms); return; }   // 模型页：宇宙中心虚化成整屏背景
+  if (view !== 'status') { scene.setInsets({ t: 0, r: 0, b: 0, l: 0 }, ms); return; }   // 模型页：宇宙中心虚化成整屏背景
   const k = $('kpis').getBoundingClientRect();
   const left = drawerId ? st.right - 20 - $('drawer').offsetWidth : $('rail').getBoundingClientRect().left;
   scene.setInsets({ t: drawerId ? 84 : Math.max(96, k.bottom - st.top + 58), r: Math.max(24, st.right - left + 24), b: drawerId ? 40 : 52, l: 28 }, ms);
@@ -122,15 +124,46 @@ function showHover(id) {
   if (!m || !tag || view !== 'status' || drawerId) return hideHover();
   const r = tag.getBoundingClientRect(), host = $('dashboard').getBoundingClientRect(), hc = $('hovercard');
   const run = runningOf(id);
-  hc.innerHTML = `<h4>${esc(m.name)} · <span style="color:${STATUS_COLOR[statusOf(m)]}">${STATUS_WORD[statusOf(m)]}</span></h4>${bars(m)}${run.length ? `<div class="chips" style="margin-top:8px">${run.map((x) => `<span class="chip on">${esc(x)}</span>`).join('')}</div>` : ''}`;
+  hc.innerHTML = `<h4>${esc(m.name)} · <span style="color:${STATUS_COLOR[statusOf(m)]}">${STATUS_WORD[statusOf(m)]}</span></h4>${bars(m)}${run.length ? `<div class="chips" style="margin-top:8px">${run.map((x) => `<span class="chip on">${esc(x)}</span>`).join('')}</div>` : ''}${hoverProcs(m)}`;
   hc.hidden = false;
   const w = hc.offsetWidth, h = hc.offsetHeight;
   let x = r.right - host.left + 12, y = r.top - host.top - 4;
   if (x + w > host.width - 12) x = r.left - host.left - w - 12;
   y = Math.max(70, Math.min(host.height - h - 12, y));
   hc.style.left = `${x}px`; hc.style.top = `${y}px`;
+  dimUnder(hc, tag);
 }
-function hideHover() { $('hovercard').hidden = true; }
+// 悬停卡底下压着的名牌先淡掉（只改透明度、不改排布，免得名牌挪走触发新的悬停）
+function dimUnder(hc, keep) {
+  const c = hc.getBoundingClientRect();
+  for (const el of document.querySelectorAll('.scene-labels > *')) {
+    if (el === keep) { el.classList.remove('is-under'); continue; }
+    const r = el.getBoundingClientRect();
+    el.classList.toggle('is-under', r.width > 0 && r.left < c.right + 6 && r.right > c.left - 6 && r.top < c.bottom + 6 && r.bottom > c.top - 6);
+  }
+}
+function hoverProcs(m) {
+  const { other, amt } = procInfo(m); if (!other.length) return '';
+  return `<div class="hc-pr"><h6>占用前 3（不含模型）</h6>${other.map((p) => `<p><span>${pname(p)}</span><em>${amt(p)}</em></p>`).join('')}</div>`;
+}
+function hideHover() { $('hovercard').hidden = true; for (const el of document.querySelectorAll('.scene-labels > .is-under')) el.classList.remove('is-under'); }
+// 占内存 / 显存最多的进程（hub 按进程名汇总；模型进程单独算，不进前 3）
+const gbs = (v) => (v == null ? '' : v >= 10 ? `${Math.round(v)} GB` : `${v.toFixed(1)} GB`);
+function procInfo(m) {
+  const ps = m.procs || [], unified = m.kind === 'gb10';
+  const vt = (m.gpus || []).reduce((a, g) => a + (g.vram_gb || 0), 0), mt = m.mem_total_gb || 0;
+  const amt = (p) => (unified ? gbs(Math.max(p.ram_gb || 0, p.vram_gb || 0)) : [p.ram_gb >= 0.05 ? `内存 ${gbs(p.ram_gb)}` : '', p.vram_gb ? `显存 ${gbs(p.vram_gb)}` : ''].filter(Boolean).join(' · '));
+  const share = (p) => Math.min(100, 100 * Math.max(unified ? Math.max(p.ram_gb || 0, p.vram_gb || 0) / (mt || 1) : (p.ram_gb || 0) / (mt || 1), !unified && vt ? (p.vram_gb || 0) / vt : 0));
+  return { other: ps.filter((p) => !p.model).slice(0, 3), mod: ps.filter((p) => p.model), amt, share };
+}
+const pname = (p) => `${esc(p.name)}${p.n > 1 ? `<em> ×${p.n}</em>` : ''}`;
+function procSec(m) {
+  const { other, mod, amt, share } = procInfo(m); if (!other.length && !mod.length) return '';
+  const sumMod = { ram_gb: mod.reduce((a, p) => a + (p.ram_gb || 0), 0), vram_gb: mod.reduce((a, p) => a + (p.vram_gb || 0), 0) || null };
+  return `<div class="dr-sec"><h5>占用最多的进程 · 前 3（不含模型）</h5>
+    ${other.map((p) => `<div class="pr-row"><b>${pname(p)}</b><span>${amt(p)}</span><i><b style="width:${Math.max(1.5, share(p)).toFixed(1)}%"></b></i></div>`).join('') || '<p class="pr-none">除了模型没有别的大进程</p>'}
+    ${mod.length ? `<p class="pr-mod"><b>模型进程</b>${mod.map((p) => pname(p)).join('、')} · 共 ${amt(sumMod)}</p>` : ''}</div>`;
+}
 function bars(m) {
   const row = (k, v) => `<span>${k}</span><i><b style="width:${Math.max(0, Math.min(100, v ?? 0))}%"></b></i><span>${num(v)}%</span>`;
   return `<div class="bars">${row('CPU', m.cpu_pct)}${row('内存', m.mem_pct)}${m.gpu_pct != null ? row('GPU', m.gpu_pct) : ''}${row('磁盘', m.disk_pct)}</div>`;
@@ -148,13 +181,19 @@ function openDrawer(id) {
   scene?.focus(id);
   requestAnimationFrame(() => updateInsets(first ? 900 : 500));
 }
+// 显卡：每张一行；同型号多卡只在标题写一次型号，行里写 GPU0 / GPU1
+function gpuSec(m) {
+  const gs = m.gpus || []; if (!gs.length) return '';
+  const same = gs.length > 1 && gs.every((g) => g.name === gs[0].name);
+  return `<div class="dr-sec"><h5>显卡${same ? ` · ${gs.length} × ${esc(gs[0].name)}${gs[0].vram_gb ? ` ${gs[0].vram_gb} GB` : ''}` : ''}</h5>${gs.map((g) => `<div class="gpu-row c"><b>${same ? `GPU${g.idx}` : esc(g.name)}</b><span>${num(g.temp_c)}° · ${num(g.power_w)} W · 利用率 ${num(g.util)}% · 显存 ${num(g.mem_pct)}%${!same && g.vram_gb ? ` / ${g.vram_gb} GB` : ''}</span></div>`).join('')}</div>`;
+}
 function renderDrawer() {
   const id = drawerId, m = machinesOf().find((x) => x.id === id); if (!m) return;
   const st = statusOf(m), run = runningOf(id), hist = (m.temp_hist || []).filter((v) => v != null);
   const slot = m.kind === 'gb10' ? 'spark' : KEEP.includes(id) ? id : null;
   let spark = '';
   if (hist.length > 1) {
-    const lo = Math.min(...hist) - 2, hi = Math.max(...hist) + 2, W = 340, H = 64;
+    const lo = Math.min(...hist) - 2, hi = Math.max(...hist) + 2, W = 340, H = 44;
     const pts = hist.map((v, i) => `${(i / (hist.length - 1) * W).toFixed(1)},${(H - (v - lo) / (hi - lo || 1) * (H - 8) - 4).toFixed(1)}`).join(' ');
     spark = `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${STATUS_COLOR[st]}" stroke-width="1.6"/></svg><div class="dr-role">${hist.length} 分钟 · ${Math.round(Math.min(...hist))}° ~ ${Math.round(Math.max(...hist))}°</div>`;
   }
@@ -164,11 +203,11 @@ function renderDrawer() {
     <button class="dr-x" type="button" aria-label="关闭" data-close>×</button>
     <p class="dr-k">${esc((state.sites || []).find((s) => s.id === m.site)?.name || '')} · ${esc(STATUS_WORD[st])}</p>
     <h2 class="dr-name">${esc(m.name)}</h2><p class="dr-role">${esc(m.role || '')}${m.uptime_s ? ` · 已运行 ${age(m.uptime_s)}` : ''}</p>
-    <div class="dr-temp" style="--c:${STATUS_COLOR[st]}"><b>${m.online ? num(m.temp_c) : '—'}°</b><span>${m.online ? '当前最高温度' : esc(m.error || '连不上')}</span></div>
-    ${m.online ? bars(m) : ''}
-    ${(m.gpus || []).length ? `<div class="dr-sec"><h5>显卡</h5>${m.gpus.map((g) => `<div class="gpu-row"><b>${esc(g.name)}</b><span>${num(g.temp_c)}° · ${num(g.power_w)} W</span><span>利用率 ${num(g.util)}% · 显存 ${num(g.mem_pct)}%</span><span>${g.vram_gb ? `${g.vram_gb} GB` : ''}</span></div>`).join('')}</div>` : ''}
-    ${spark ? `<div class="dr-sec"><h5>最近温度</h5>${spark}</div>` : ''}
+    <div class="dr-top${m.online ? '' : ' is-off'}"><div class="dr-temp" style="--c:${STATUS_COLOR[st]}"><b>${m.online ? num(m.temp_c) : '—'}°</b><span>${m.online ? '当前最高温度' : esc(m.error || '连不上')}</span></div>${m.online ? bars(m) : ''}</div>
     <div class="dr-sec"><h5>正在跑</h5><div class="chips">${run.length ? run.map((x) => `<span class="chip on">${esc(x)}</span>`).join('') : '<span class="chip">没有登记的模型服务</span>'}</div></div>
+    ${m.online ? procSec(m) : ''}
+    ${gpuSec(m)}
+    ${spark ? `<div class="dr-sec dr-spark-sec"><h5>最近温度</h5>${spark}</div>` : ''}
     ${slot ? `<button class="go-models" type="button" data-goslot="${slot}">去模型页切换 →</button>` : ''}`;
   dr.scrollTop = keep;
 }
@@ -331,6 +370,161 @@ async function fire() {
 function closeConfirm(keepPick) { $('confirm')?.remove(); if (!keepPick) { picked = null; renderModels(); } }
 function toast(text) { const t = $('toast'); t.textContent = text; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 3200); }
 
+// ---------------- 项目页 ----------------
+// 数据来自 hub 扫各项目的 progress.md / logs.md：进度 = 待办勾选比例，节奏 = 最近 14 天每天的记录条数。
+// 进行中（3 天内有动静或有会话在跑）→ 已完成（3 天内）→ 搁置（3–30 天没动）；完成超过 3 天进归档，30 天没动的收进「更早」。
+const PJ_WORD = { active: '进行中', done: '已完成', paused: '搁置', archived: '归档', stale: '更早' };
+const pjOpen = new Set();
+const ago = (ms) => (ms ? `${age(Math.max(0, (Date.now() - ms) / 1000))}前` : '—');
+const FOLDER = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5h4.2l1.5 1.6h7.3v7.4H1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
+const dirBtn = (p) => `<button type="button" class="pj-dir" data-copy="${esc(p.dir || p.path)}" title="点一下复制路径">${FOLDER}<code>${esc(p.dir || p.path)}</code><span>复制</span></button>`;
+const intentOf = (p) => (p.intent ? esc(p.intent) : '<span class="pj-none">没写意图（在这个文件夹的 context.md 里补一句「目标：」）</span>');
+function pjCard(p) {
+  const pct = p.total ? Math.round(100 * p.done / p.total) : null, open = pjOpen.has(p.id);
+  const spark = (p.days || []).map((n) => `<i style="--h:${Math.min(1, n / 4)}" class="${n ? 'on' : ''}"></i>`).join('');
+  const next = (p.next || []).slice(0, 4).map((t) => `<li>${esc(t)}</li>`).join('');
+  return `<article class="pj is-${p.status}${open ? ' is-open' : ''}" data-pj="${esc(p.id)}">
+    <header><span class="pj-ic">${icon(catOf(p), 20)}</span><div class="pj-hd"><b>${esc(p.name)}</b><em>${catName(p)}</em></div>${p.live ? `<span class="pj-live${p.live_busy ? ' is-busy' : ''}">${p.live} 个会话${p.live_busy ? ' · 在跑' : ''}</span>` : `<span class="pj-st">${PJ_WORD[p.status]}</span>`}</header>
+    <p class="pj-intent">${intentOf(p)}</p>
+    ${dirBtn(p)}
+    <div class="pj-meta">${pct == null ? '<span class="pj-num is-none">没有待办清单</span>' : `${ring(pct)}<span class="pj-num"><b>${pct}%</b> 完成 · ${p.done}/${p.total} 项</span>`}<em>${ago(p.last)}</em></div>
+    ${open && p.milestone ? `<p class="pj-ms"><b>最新</b>${esc(p.milestone)}</p>` : ''}
+    ${open && next ? `<ul class="pj-next">${next}</ul>` : ''}
+    <div class="pj-spark" aria-label="最近 14 天">${spark}</div><p class="pj-spark-l"><span>14 天前</span><span>每天记录条数</span><span>今天</span></p>
+  </article>`;
+}
+function pjRow(p) {
+  return `<div class="pj-row is-${p.status}" data-pjrow="${esc(p.id)}"><p><span class="pj-ic sm" title="${catName(p)}">${icon(catOf(p), 14)}</span><b>${esc(p.name)}</b><time>${ago(p.last)}</time></p><p class="pj-row-i">${intentOf(p)}</p>${dirBtn(p)}</div>`;
+}
+// ---------- 图形化总览：项目轨道图 + 状态环 + 本周最忙 ----------
+const PJC = { active: '#3df2a4', done: '#8fcfff', paused: '#8d9fbd', archived: '#5b6774', stale: '#3a4552' };   // 搁置用安静的灰蓝，不像报警
+const ring = (pct, size = 34) => `<svg class="pj-ring" viewBox="0 0 36 36" width="${size}" height="${size}" aria-hidden="true"><circle class="t" cx="18" cy="18" r="15"/><circle class="v" cx="18" cy="18" r="15" pathLength="100" stroke-dasharray="${pct} 100"/></svg>`;
+const sum = (a) => (a || []).reduce((x, y) => x + y, 0);
+const ORB = [0, 1, 3, 7, 14, 30], ORB_LAB = ['', '1 天', '3 天', '1 周', '2 周', '1 个月'];
+// 电脑：宽椭圆轨道；手机：接近正圆、字号放大（viewBox 窄了，字才看得清），只给最活跃的几个标名字
+const orbGeo = () => (PH() ? { W: 600, H: 640, CX: 300, CY: 330, R0: 58, R1: 268, SQ: .97, fs: 24, rn0: 16, rnk: 15, maxLab: pjCat ? 6 : 0 }
+  : { W: 1000, H: 580, CX: 500, CY: 290, R0: 78, R1: 440, SQ: .5, fs: 14, rn0: 11, rnk: 12, maxLab: 16 });
+const ORB_F = [0, .24, .43, .61, .79, 1];   // 每圈占的半径比例：「今天→1 天」给得最宽，进行中的项目不挤成一团
+function orbitR(days, G) {   // 离中心的距离：按 0 / 1 / 3 / 7 / 14 / 30 天分段线性，超过 30 天挤在最外圈
+  if (days <= 0) return G.R0;
+  for (let i = 1; i < ORB.length; i++) if (days <= ORB[i]) return G.R0 + (G.R1 - G.R0) * (ORB_F[i - 1] + (ORB_F[i] - ORB_F[i - 1]) * (days - ORB[i - 1]) / (ORB[i] - ORB[i - 1]));
+  return G.R1 + Math.min(G.R1 * .06, (days - 30) / 8);
+}
+const textW = (t, px) => [...t].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? px : px * .58), 0);
+function orbitSvg(ps) {
+  const G = orbGeo(), { CX, CY, SQ } = G;
+  const main = ps.filter((p) => ['active', 'done', 'paused'].includes(p.status)), rest = ps.filter((p) => !main.includes(p));
+  const maxA = Math.max(1, ...main.map((p) => sum(p.days)));
+  const now = Date.now(), nodes = [];
+  const place = (list, small0) => list.forEach((p, i) => {
+    const hit = !!pjCat && catOf(p) === pjCat, small = small0 && !hit;   // 筛选时这一类的归档项目也画成带图标的星
+    const days = p.last ? (now - p.last) / 864e5 : 60, r = orbitR(days, G), a = (small ? .9 : 0) + i * 2.39996 - Math.PI / 2;   // 黄金角，均匀铺开
+    const rn = small ? G.rn0 * .4 : small0 ? G.rn0 * .85 : G.rn0 + G.rnk * Math.sqrt(sum(p.days) / maxA);
+    nodes.push({ p, x: CX + r * Math.cos(a), y: CY + r * SQ * Math.sin(a), rn, small, r, dim: !!pjCat && catOf(p) !== pjCat });
+  });
+  place(main, false); place(rest, true);
+  const rings = ORB.slice(1).map((d) => { const r = orbitR(d, G); return `<ellipse cx="${CX}" cy="${CY}" rx="${r}" ry="${r * SQ}" class="orb${d === 3 ? ' is-key' : ''}"/>`; }).join('');
+  // 刻度：每圈正上方一块深色小牌，画在最上层，压在星上也读得清
+  const rl = ORB.slice(1).map((d, i) => { const r = orbitR(d, G), t = ORB_LAB[i + 1], w = textW(t, G.fs) + G.fs * .9; return { x: CX, y: CY - r * SQ, t, w }; });
+  const ringLab = rl.map((l) => `<g class="orb-lg"><rect x="${(l.x - l.w / 2).toFixed(1)}" y="${(l.y - G.fs * .72).toFixed(1)}" width="${l.w.toFixed(1)}" height="${(G.fs * 1.44).toFixed(1)}" rx="${(G.fs * .72).toFixed(1)}"/><text x="${l.x}" y="${(l.y + G.fs * .36).toFixed(1)}" class="orb-l">${l.t}</text></g>`).join('');
+  // 标签：右 → 左 → 下 → 上，压到别的标签或星就换位置，四个都不行就只在悬停时显示
+  const boxes = nodes.filter((n) => !n.small && !n.dim).map((n) => ({ x: n.x - n.rn - 5, y: n.y - n.rn - 5, w: 2 * n.rn + 10, h: 2 * n.rn + 10 }))
+    .concat(rl.map((l) => ({ x: l.x - l.w / 2 - 4, y: l.y - G.fs * .8, w: l.w + 8, h: G.fs * 1.6 })), [{ x: CX - G.fs * 1.6, y: CY - G.fs, w: G.fs * 3.2, h: G.fs * 2 }]);
+  const hit = (b) => boxes.some((o) => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y) || b.x < 4 || b.x + b.w > G.W - 4 || b.y < 4 || b.y + b.h > G.H - 4;
+  const labels = [];
+  // 只给大星标名字（进行中 / 刚完成优先，再按活跃度），名字写全；其余悬停或点开看
+  const pri = (n) => (n.p.status === 'active' ? 2 : n.p.status === 'done' ? 1 : 0) * 1000 + n.rn;
+  for (const n of nodes.filter((n) => !n.small && !n.dim).sort((a, b) => pri(b) - pri(a)).slice(0, G.maxLab)) {
+    const name = n.p.name.replace(/（.*?）/g, ''), w = textW(name, G.fs) + 4, h = G.fs * 1.25;
+    const tries = [[n.x + n.rn + 8, n.y - h / 2, 'start'], [n.x - n.rn - 8 - w, n.y - h / 2, 'end'], [n.x - w / 2, n.y + n.rn + 6, 'mid'], [n.x - w / 2, n.y - n.rn - 6 - h, 'mid']];
+    const t = tries.find(([x, y]) => !hit({ x, y, w, h }));
+    if (t) { boxes.push({ x: t[0], y: t[1], w, h }); labels.push(`<text x="${t[0] + (t[2] === 'end' ? w : t[2] === 'mid' ? w / 2 : 0)}" y="${t[1] + G.fs * .95}" text-anchor="${t[2] === 'end' ? 'end' : t[2] === 'mid' ? 'middle' : 'start'}" class="orb-n is-${n.p.status}" data-node="${esc(n.p.id)}">${esc(name)}</text>`); }
+  }
+  const draw = nodes.sort((a, b) => b.r - a.r).map((n) => {
+    const c = PJC[n.p.status], pct = n.p.total ? Math.round(100 * n.p.done / n.p.total) : null;
+    if (n.small) return `<circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.rn}" fill="${c}" class="orb-s${n.dim ? ' is-dim' : ''}" data-node="${esc(n.p.id)}"/>`;
+    const s = n.rn * 1.34;
+    return `<g transform="translate(${n.x.toFixed(1)} ${n.y.toFixed(1)})" class="orb-g is-${n.p.status}${n.dim ? ' is-dim' : ''}" data-node="${esc(n.p.id)}">
+      ${n.p.live ? `<circle r="${n.rn + 4}" class="orb-live" style="--c:${c}"/>` : ''}
+      <circle r="${n.rn + 6}" class="orb-t"/>${pct != null ? `<circle r="${n.rn + 6}" class="orb-p" stroke="${c}" pathLength="100" stroke-dasharray="${pct} 100" transform="rotate(-90)"/>` : ''}
+      <circle r="${n.rn}" fill="${c}" class="orb-c" style="--c:${c}"/><g transform="translate(${(-s / 2).toFixed(1)} ${(-s / 2).toFixed(1)}) scale(${(s / 24).toFixed(3)})" class="orb-ic">${iconG(catOf(n.p))}</g></g>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${G.W} ${G.H}" class="pj-orb-svg${PH() ? ' is-ph' : ''}" role="img" aria-label="项目轨道图">
+    <defs><radialGradient id="orbCore"><stop offset="0" stop-color="#3df2a4" stop-opacity=".55"/><stop offset="1" stop-color="#3df2a4" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="${CX}" cy="${CY}" rx="${G.R0 * 1.6}" ry="${G.R0 * 1.6 * SQ}" fill="url(#orbCore)"/>${rings}
+    ${draw}${labels.join('')}${ringLab}<text x="${CX}" y="${CY + G.fs * .36}" class="orb-today">今天</text></svg>`;
+}
+function donutSvg(ps) {
+  const seg = ['active', 'done', 'paused', 'archived', 'stale'].map((k) => ({ k, n: ps.filter((p) => p.status === k).length })).filter((s) => s.n);
+  const tot = ps.length || 1; let off = 0;
+  const arcs = seg.map((s) => { const v = 100 * s.n / tot, a = `<circle cx="60" cy="60" r="46" pathLength="100" stroke="${PJC[s.k]}" stroke-dasharray="${Math.max(0, v - .8)} ${100 - v + .8}" stroke-dashoffset="${-off}" class="dn"/>`; off += v; return a; }).join('');
+  return `<div class="pj-donut-in"><svg viewBox="0 0 120 120" class="pj-dn" aria-hidden="true"><g transform="rotate(-90 60 60)">${arcs}</g><text x="60" y="58" class="dn-n">${ps.length}</text><text x="60" y="76" class="dn-l">个项目</text></svg>
+    <ul>${seg.map((s) => `<li><i style="background:${PJC[s.k]}"></i>${PJ_WORD[s.k]}<b>${s.n}</b></li>`).join('')}</ul></div>`;
+}
+function weekBars(ps) {
+  const top = ps.filter((p) => sum((p.days || []).slice(7)) > 0).sort((a, b) => sum(b.days.slice(7)) - sum(a.days.slice(7))).slice(0, 7);
+  if (!top.length) return '<p class="pj-none">这周还没有项目写日志</p>';
+  const mx = Math.max(...top.map((p) => sum(p.days.slice(7))));
+  return top.map((p) => { const n = sum(p.days.slice(7)); return `<div class="wk" data-node="${esc(p.id)}"><b><span class="wk-ic" style="color:${PJC[p.status]}">${icon(catOf(p), 15)}</span>${esc(p.name)}</b><span><i style="width:${Math.max(4, 100 * n / mx)}%;background:${PJC[p.status]}"></i></span><em>${n} 条</em></div>`; }).join('');
+}
+let pjCat = null;   // 类别筛选已取消（11-16 用户：只归类、不展示类别墙），保留变量给轨道图用
+let pjKey = '';
+function renderProjects(force) {
+  const all = state?.projects || [];
+  if (pjCat && !all.some((p) => catOf(p) === pjCat)) pjCat = null;
+  const ps = pjCat ? all.filter((p) => catOf(p) === pjCat) : all, by = (s) => ps.filter((p) => p.status === s);
+  // 数据和展开状态都没变就不重画（每 5 秒一次的快照不该打断点击和滚动）；「几分钟前」按分钟刷新
+  const key = JSON.stringify([all, [...pjOpen], pjCat, Math.floor(Date.now() / 60000), PH()]);
+  if (!force && key === pjKey && $('pj-body').childElementCount) return;
+  pjKey = key;
+  const act = by('active'), done = by('done'), paused = by('paused'), arch = by('archived'), stale = by('stale');
+  const today = act.concat(done, paused).filter((p) => (p.days || [])[13] > 0).length, live = ps.filter((p) => p.live).length;
+  $('pj-sub').innerHTML = all.length ? `${pjCat ? `<b class="pj-sub-cat">${icon(pjCat, 15)}${CATS[pjCat][0]}</b> · ` : ''}进行中 <b>${act.length}</b> · 今天动过 <b>${today}</b> · <b>${live}</b> 个有会话在跑 · <span class="k">完成超过 3 天自动归档</span>` : '等 hub 扫完项目…';
+  // 最近动态：各项目 logs.md 里带日期的标题（没有日志就用 progress.md 里带日期的条目），按天倒序
+  const order = act.concat(done, paused), rank = new Map(order.map((p, i) => [p.id, i]));
+  const evs = order.flatMap((p) => (p.recent || []).map((r, k) => ({ p, d: r.d, t: r.t, k }))).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : rank.get(a.p.id) - rank.get(b.p.id) || a.k - b.k)).slice(0, 14);
+  const dayLab = (ds) => { const n = Math.round((new Date(new Date().toDateString()) - new Date(`${ds}T00:00:00`)) / 864e5); return n <= 0 ? '今天' : n === 1 ? '昨天' : n < 7 ? `${n} 天前` : ds.slice(5).replace('-', '/'); };
+  const groups = [];   // 同一天的条目放进一个块，分栏时不被拆开
+  for (const e of evs) { const lab = dayLab(e.d); if (!groups.length || groups.at(-1).lab !== lab) groups.push({ lab, items: [] }); groups.at(-1).items.push(e); }
+  const feed = groups.map((g) => `<div class="pj-day"><h4>${g.lab}</h4>${g.items.map((e) => `<p class="pj-ev is-${e.p.status}"><i title="${catName(e.p)}">${icon(catOf(e.p), 15)}</i><b>${esc(e.p.name)}</b><span>${esc(e.t)}</span></p>`).join('')}</div>`).join('');
+  const rhythm = evs.length ? `<section class="pj-feed"><h3>最近动态<span>各项目日志里最近写下的事，按天倒序</span></h3><div class="pj-evs">${feed}</div></section>` : '';
+  const grid = (list) => (list.length ? `<div class="pj-grid">${list.map(pjCard).join('')}</div>` : '');
+  const fold = (id, title, list) => (list.length ? `<details class="pj-fold" data-fold="${id}"${pjOpen.has(id) ? ' open' : ''}><summary>${title} · ${list.length}</summary>${list.map(pjRow).join('')}</details>` : '');
+  const body = $('pj-body'), sc = $('page-projects'), y = sc.scrollTop;
+  const viz = all.length ? `<section class="pj-viz">
+    <div class="pj-orbit"><h3>项目轨道<span>中心是今天，越靠近中心越是最近在做；星里的图标是项目类别</span></h3>${orbitSvg(all)}
+      <p class="pj-legend"><span><i class="lg-near"></i>离中心越近 = 越近期动过</span><span><i class="lg-big"></i>星越大 = 14 天里日志越多</span><span><i class="lg-arc"></i>粗弧 = 完成比例</span><span><i class="lg-live"></i>向外扩散的光圈 = 有会话在跑</span><span><i class="lg-st" style="background:#3df2a4"></i>进行中</span><span><i class="lg-st" style="background:#8d9fbd"></i>搁置</span><span><i class="lg-st" style="background:#8fcfff"></i>刚完成</span><span><i class="lg-dim"></i>小灰点 = 归档 / 30 天没动</span></p>
+      <div class="pj-tip" id="pj-tip" hidden></div></div>
+    <div class="pj-side"><div class="pj-box"><h3>状态分布</h3>${donutSvg(ps)}</div>
+      <div class="pj-box"><h3>本周最忙<span>最近 7 天日志条数</span></h3>${weekBars(ps)}</div></div></section>` : '';
+  body.innerHTML = `${viz}
+    ${act.length ? `<h2 class="pj-h">进行中</h2>${grid(act)}` : ''}
+    ${done.length ? `<h2 class="pj-h">刚完成 · 3 天后进归档</h2>${grid(done)}` : ''}
+    ${paused.length ? `<h2 class="pj-h">搁置 · 3–30 天没动</h2>${grid(paused)}` : ''}
+    ${rhythm}
+    ${fold('archived', '归档 · 完成超过 3 天', arch)}${fold('stale', '更早 · 30 天以上没动', stale)}`;
+  sc.scrollTop = y;
+}
+document.addEventListener('click', (e) => {
+  const cp = e.target.closest('[data-copy]');
+  if (cp) {   // 复制文件夹路径；不展开卡片
+    e.stopPropagation();
+    const t = cp.dataset.copy, done = () => { cp.classList.add('is-copied'); cp.querySelector('span').textContent = '已复制'; setTimeout(() => { cp.classList.remove('is-copied'); cp.querySelector('span').textContent = '复制'; }, 1500); };
+    (navigator.clipboard?.writeText(t) || Promise.reject()).then(done, () => { const r = document.createRange(); r.selectNodeContents(cp.querySelector('code')); getSelection().removeAllRanges(); getSelection().addRange(r); });
+    return;
+  }
+  const nd = e.target.closest('[data-node]');
+  if (nd) {
+    const id = nd.dataset.node, p = (state?.projects || []).find((x) => x.id === id); if (!p) return;
+    if (['archived', 'stale'].includes(p.status) && !pjOpen.has(p.status)) { pjOpen.add(p.status); renderProjects(true); }
+    const el = document.querySelector(`.pj[data-pj="${CSS.escape(id)}"], .pj-row[data-pjrow="${CSS.escape(id)}"]`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.remove('is-flash'); void el.offsetWidth; el.classList.add('is-flash'); }
+    return;
+  }
+  const c = e.target.closest('.pj[data-pj]'); if (c) { const id = c.dataset.pj; pjOpen.has(id) ? pjOpen.delete(id) : pjOpen.add(id); renderProjects(true); }
+});
+document.addEventListener('toggle', (e) => { const f = e.target.closest?.('.pj-fold'); if (f) { f.open ? pjOpen.add(f.dataset.fold) : pjOpen.delete(f.dataset.fold); } }, true);
+
 // ---------------- 启动 ----------------
 function paint(next) {
   state = next; lastUpdate = Date.now();
@@ -339,6 +533,7 @@ function paint(next) {
   renderKpis(); renderRail();
   if (!paint.inited) { paint.inited = true; requestAnimationFrame(() => updateInsets()); }
   if (view === 'models' && !holdRaf) renderModels();
+  if (view === 'projects') renderProjects();
   if (drawerId) { if (machinesOf().some((m) => m.id === drawerId)) renderDrawer(); else closeDrawer(); }
   window.__appReady = true;
 }
@@ -350,9 +545,24 @@ function paint(next) {
   } catch (e) { ld.querySelector('b').textContent = '3D 机库加载失败，只显示数据'; console.warn(e); }
   ld.classList.add('is-done'); setTimeout(() => ld.remove(), 700);
   client = await connect({ onState: paint, onActions: (a) => { actions = a; if (view === 'models' && !holdRaf) renderModels(); }, onMode: (d) => { demo = d; } });
-  const initial = location.hash === '#models' || new URLSearchParams(location.search).get('view') === 'models' ? 'models' : 'status';
+  const qv = location.hash.slice(1) || new URLSearchParams(location.search).get('view');
+  const initial = qv === 'models' || qv === 'projects' ? qv : 'status';
   go(initial); moveInk();
   if (initial === 'status') setTimeout(() => showHint(PH() ? '单指拖动 360° 旋转 · 双指缩放平移 · 点机器看详情' : '拖动 360° 旋转 · 滚轮缩放 · 右键拖平移 · 双击复位', 'dashHint0'), 1800);
   window.__dash = { go, openDrawer, closeDrawer, step, screenOf: (id) => scene?.screenOf(id) };   // 截图验收用
   setInterval(() => { if (view === 'models' && actions.some((a) => a.status === 'running') && !holdRaf) renderModels(); }, 1000);
 })();
+
+document.addEventListener('mouseover', (e) => {
+  const nd = e.target.closest?.('.pj-orbit [data-node]'), tip = $('pj-tip'); if (!tip) return;
+  if (!nd) { tip.hidden = true; return; }
+  const p = (state?.projects || []).find((x) => x.id === nd.dataset.node); if (!p) return;
+  const pct = p.total ? `${Math.round(100 * p.done / p.total)}% · ${p.done}/${p.total} 项` : '没有待办清单';
+  tip.innerHTML = `<b><span class="pj-ic sm">${icon(catOf(p), 14)}</span>${esc(p.name)}</b><em>${catName(p)} · ${PJ_WORD[p.status]} · ${ago(p.last)}</em><p>${intentOf(p)}</p><code>${esc(p.dir || p.path)}</code><span>${pct}${p.live ? ` · ${p.live} 个会话` : ''}</span>`;
+  const box = nd.closest('.pj-orbit').getBoundingClientRect(), r = nd.getBoundingClientRect();
+  tip.hidden = false;
+  const x = Math.min(box.width - tip.offsetWidth - 8, Math.max(8, r.left - box.left + r.width / 2 - tip.offsetWidth / 2));
+  const y = r.top - box.top - tip.offsetHeight - 12 < 30 ? r.bottom - box.top + 12 : r.top - box.top - tip.offsetHeight - 12;
+  tip.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+});
+addEventListener('resize', () => { if (view === 'projects') renderProjects(); });

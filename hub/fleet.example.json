@@ -1,60 +1,291 @@
 {
   "_note": "Copy to fleet.json and edit. cmd = how the hub reaches the machine (any command that takes a shell script on stdin: ssh alias, a wrapper, or [\"local\"]). Switch commands live ONLY here; the relay and the browser just see option ids.",
-  "hub": { "name": "MacBook Pro", "chip": "M3 Pro", "iface": "en0" },
+  "hub": {
+    "name": "MacBook Pro",
+    "chip": "M3 Pro",
+    "iface": "en0"
+  },
   "sites": [
-    { "id": "home",    "name": "家里" },
-    { "id": "campus",  "name": "机房" },
-    { "id": "cloud",   "name": "云端" },
-    { "id": "partner", "name": "合作方" }
+    {
+      "id": "home",
+      "name": "家里"
+    },
+    {
+      "id": "campus",
+      "name": "机房"
+    },
+    {
+      "id": "cloud",
+      "name": "云端"
+    },
+    {
+      "id": "partner",
+      "name": "合作方"
+    }
   ],
   "machines": [
-    { "id": "spark-a", "name": "Spark A", "site": "home", "kind": "gb10", "role": "GB10 · 集群", "model": "spark_asus", "probe": "linux", "cmd": ["ssh", "spark-a"], "every": 10 },
-    { "id": "spark-b", "name": "Spark B", "site": "home", "kind": "gb10", "role": "GB10 · 集群主节点", "model": "spark_msi", "probe": "linux", "cmd": ["ssh", "spark-b"], "every": 10 },
-    { "id": "ws-4080", "name": "RTX 4080", "site": "home", "kind": "windows", "role": "出图 · 出片", "model": "tower_4080", "probe": "win", "cmd": ["ssh", "ws-4080"], "every": 15 },
-    { "id": "apu-395", "name": "Ryzen AI 395", "site": "home", "kind": "windows", "role": "语音", "model": "rog_z13", "probe": "amd", "gpu_name": "Radeon 8060S", "vram_gb": 64, "cmd": ["ssh", "apu-395"], "every": 20 },
-    { "id": "a100", "name": "A100 ×4", "site": "campus", "kind": "server", "role": "4×A100 40G · 共享", "model": "server_a100", "probe": "linux", "cmd": ["ssh", "a100"], "every": 10 },
-    { "id": "cloud-gpu", "name": "Cloud 3080 Ti", "site": "cloud", "kind": "windows", "role": "出图", "model": "cloud_blade", "probe": "win", "cmd": ["ssh", "cloud-gpu"], "every": 30 }
+    {
+      "id": "spark-a",
+      "name": "Spark A",
+      "site": "home",
+      "kind": "gb10",
+      "role": "GB10 · 集群",
+      "model": "spark_asus",
+      "probe": "linux",
+      "cmd": [
+        "ssh",
+        "spark-a"
+      ],
+      "every": 10
+    },
+    {
+      "id": "spark-b",
+      "name": "Spark B",
+      "site": "home",
+      "kind": "gb10",
+      "role": "GB10 · 集群主节点",
+      "model": "spark_msi",
+      "probe": "linux",
+      "cmd": [
+        "ssh",
+        "spark-b"
+      ],
+      "every": 10
+    },
+    {
+      "id": "ws-4080",
+      "name": "RTX 4080",
+      "site": "home",
+      "kind": "windows",
+      "role": "出图 · 出片",
+      "model": "tower_4080",
+      "probe": "win",
+      "cmd": [
+        "ssh",
+        "ws-4080"
+      ],
+      "every": 15
+    },
+    {
+      "id": "apu-395",
+      "name": "Ryzen AI 395",
+      "site": "home",
+      "kind": "windows",
+      "role": "语音",
+      "model": "rog_z13",
+      "probe": "amd",
+      "gpu_name": "Radeon 8060S",
+      "vram_gb": 64,
+      "cmd": [
+        "ssh",
+        "apu-395"
+      ],
+      "every": 20
+    },
+    {
+      "id": "a100",
+      "name": "A100 ×4",
+      "site": "campus",
+      "kind": "server",
+      "role": "4×A100 40G · 共享",
+      "model": "server_a100",
+      "probe": "linux",
+      "cmd": [
+        "ssh",
+        "a100"
+      ],
+      "every": 10
+    },
+    {
+      "id": "cloud-gpu",
+      "name": "Cloud 3080 Ti",
+      "site": "cloud",
+      "kind": "windows",
+      "role": "出图",
+      "model": "cloud_blade",
+      "probe": "win",
+      "cmd": [
+        "ssh",
+        "cloud-gpu"
+      ],
+      "every": 30
+    }
   ],
-
   "cards": [
-    { "slot": "spark", "machine": "spark-b", "label": "两台 GB10 · 统一内存 2×128G", "source": "command",
-      "status_cmd": ["ssh", "spark-b", "cluster-mode status --json"], "every": 30,
+    {
+      "slot": "spark",
+      "machine": "spark-b",
+      "label": "两台 GB10 · 统一内存 2×128G",
+      "source": "command",
+      "status_cmd": [
+        "ssh",
+        "spark-b",
+        "cluster-mode status --json"
+      ],
+      "every": 30,
       "models": [
-        { "id": "llm",   "name": "LLM ×2",        "mode": "llm" },
-        { "id": "video", "name": "视频生成 ×2",     "mode": "video" }
-      ] },
-    { "slot": "ws-4080", "machine": "ws-4080", "label": "RTX 4080 · 16G", "source": "ports",
+        {
+          "id": "llm",
+          "name": "LLM ×2",
+          "mode": "llm"
+        },
+        {
+          "id": "video",
+          "name": "视频生成 ×2",
+          "mode": "video"
+        }
+      ]
+    },
+    {
+      "slot": "ws-4080",
+      "machine": "ws-4080",
+      "label": "RTX 4080 · 16G",
+      "source": "ports",
       "models": [
-        { "id": "image", "name": "图像模型", "port": 8188 },
-        { "id": "asr",   "name": "语音听写", "port": 8091 }
-      ] },
-    { "slot": "a100", "machine": "a100", "label": "4×A100 · 40G", "source": "gpus" },
-    { "slot": "apu-395", "machine": "apu-395", "label": "Radeon 8060S · 64G 共享", "source": "ports",
+        {
+          "id": "image",
+          "name": "图像模型",
+          "port": 8188
+        },
+        {
+          "id": "asr",
+          "name": "语音听写",
+          "port": 8091
+        }
+      ]
+    },
+    {
+      "slot": "a100",
+      "machine": "a100",
+      "label": "4×A100 · 40G",
+      "source": "gpus"
+    },
+    {
+      "slot": "apu-395",
+      "machine": "apu-395",
+      "label": "Radeon 8060S · 64G 共享",
+      "source": "ports",
       "models": [
-        { "id": "vlm", "name": "视觉模型", "port": 1234, "locked": "共享服务：只看不动" },
-        { "id": "tts", "name": "语音合成", "port": 8090 }
-      ] },
-    { "slot": "cloud-gpu", "machine": "cloud-gpu", "label": "RTX 3080 Ti · 12G", "source": "ports",
-      "models": [ { "id": "image", "name": "图像模型", "port": 4185 } ] }
+        {
+          "id": "vlm",
+          "name": "视觉模型",
+          "port": 1234,
+          "locked": "共享服务：只看不动"
+        },
+        {
+          "id": "tts",
+          "name": "语音合成",
+          "port": 8090
+        }
+      ]
+    },
+    {
+      "slot": "cloud-gpu",
+      "machine": "cloud-gpu",
+      "label": "RTX 3080 Ti · 12G",
+      "source": "ports",
+      "models": [
+        {
+          "id": "image",
+          "name": "图像模型",
+          "port": 4185
+        }
+      ]
+    }
   ],
-
   "switch": [
-    { "id": "spark:llm",   "card": "spark", "model": "llm",   "machine": "spark-b", "label": "两台 GB10 切到 LLM",
-      "confirm": "约 5 分钟不可用", "eta_s": 300, "run": ["ssh", "spark-b", "cluster-mode llm"],
-      "exit_reasons": { "75": "有任务在跑，已拒绝（什么都没动）" } },
-    { "id": "spark:video", "card": "spark", "model": "video", "machine": "spark-b", "label": "两台 GB10 切到视频生成",
-      "confirm": "会停掉 LLM，约 3 分钟", "eta_s": 180, "run": ["ssh", "spark-b", "cluster-mode video"] },
-    { "id": "ws-4080:image", "card": "ws-4080", "model": "image", "machine": "ws-4080", "label": "RTX 4080 起图像模型",
-      "confirm": "会停掉听写", "eta_s": 90, "run": ["ssh", "ws-4080", "switch-gpu image"] },
-    { "id": "ws-4080:asr",   "card": "ws-4080", "model": "asr",   "machine": "ws-4080", "label": "RTX 4080 起语音听写",
-      "confirm": "会停掉图像模型", "eta_s": 60, "run": ["ssh", "ws-4080", "switch-gpu asr"] },
-    { "id": "cloud-gpu:free", "card": "cloud-gpu", "model": "image", "machine": "cloud-gpu", "kind": "free", "label": "释放 Cloud 3080 Ti 显存",
-      "confirm": "停掉图像模型", "eta_s": 30, "run": ["ssh", "cloud-gpu", "stop-image-server"] }
+    {
+      "id": "spark:llm",
+      "card": "spark",
+      "model": "llm",
+      "machine": "spark-b",
+      "label": "两台 GB10 切到 LLM",
+      "confirm": "约 5 分钟不可用",
+      "eta_s": 300,
+      "run": [
+        "ssh",
+        "spark-b",
+        "cluster-mode llm"
+      ],
+      "exit_reasons": {
+        "75": "有任务在跑，已拒绝（什么都没动）"
+      }
+    },
+    {
+      "id": "spark:video",
+      "card": "spark",
+      "model": "video",
+      "machine": "spark-b",
+      "label": "两台 GB10 切到视频生成",
+      "confirm": "会停掉 LLM，约 3 分钟",
+      "eta_s": 180,
+      "run": [
+        "ssh",
+        "spark-b",
+        "cluster-mode video"
+      ]
+    },
+    {
+      "id": "ws-4080:image",
+      "card": "ws-4080",
+      "model": "image",
+      "machine": "ws-4080",
+      "label": "RTX 4080 起图像模型",
+      "confirm": "会停掉听写",
+      "eta_s": 90,
+      "run": [
+        "ssh",
+        "ws-4080",
+        "switch-gpu image"
+      ]
+    },
+    {
+      "id": "ws-4080:asr",
+      "card": "ws-4080",
+      "model": "asr",
+      "machine": "ws-4080",
+      "label": "RTX 4080 起语音听写",
+      "confirm": "会停掉图像模型",
+      "eta_s": 60,
+      "run": [
+        "ssh",
+        "ws-4080",
+        "switch-gpu asr"
+      ]
+    },
+    {
+      "id": "cloud-gpu:free",
+      "card": "cloud-gpu",
+      "model": "image",
+      "machine": "cloud-gpu",
+      "kind": "free",
+      "label": "释放 Cloud 3080 Ti 显存",
+      "confirm": "停掉图像模型",
+      "eta_s": 30,
+      "run": [
+        "ssh",
+        "cloud-gpu",
+        "stop-image-server"
+      ]
+    }
   ],
-
   "feeds": {
     "sessions": "claude-code",
-    "tasks": ["sh", "-c", "echo '[]'"],
-    "queue": ["sh", "-c", "echo '[]'"]
+    "tasks": [
+      "sh",
+      "-c",
+      "echo '[]'"
+    ],
+    "queue": [
+      "sh",
+      "-c",
+      "echo '[]'"
+    ]
+  },
+  "projects": {
+    "roots": [
+      "~/code"
+    ],
+    "depth": 4
   }
 }

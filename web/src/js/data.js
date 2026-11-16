@@ -65,8 +65,11 @@ export async function connect({ onState = () => {}, onActions = () => {}, onMode
     const response = await fetch('./mock/state.json', { cache: 'no-store' });
     if (!response.ok) throw new Error('演示数据加载失败');
     const data = await response.json();
+    const shift = Date.now() - (data.ts || Date.now());   // 样例里的项目时间整体平移到现在，演示里「几天前」不会越放越旧
     data.ts = Date.now();
     data.machines.forEach((machine) => { if (machine.online) machine.updated = data.ts; });
+    const dayShift = Math.round(shift / 864e5), iso = (s) => new Date(new Date(`${s}T12:00:00`).getTime() + dayShift * 864e5).toISOString().slice(0, 10);
+    (data.projects || []).forEach((p) => { if (p.last) p.last += shift; (p.recent || []).forEach((r) => { if (/^\d{4}-\d\d-\d\d$/.test(r.d)) r.d = iso(r.d); }); });
     accept({ snap: data, received_at: data.ts, stale_s: 0 });
     const baseline = copy(snapshot);
     interval = setInterval(() => {

@@ -450,7 +450,7 @@ export async function createScene(host, { onHover = () => {}, onSelect = () => {
       n.halo.material.color.copy(col); n.halo.material.opacity = dead ? .08 : selected === m.id ? .32 : hot ? .9 : .45;
       const temp = dead ? '—' : num(m.temp_c), run = running.get(m.id);
       n.st = st;
-      const cls = `tag is-${st}${hot ? ' is-hover' : ''}${selected === m.id ? ' is-selected' : ''}${n.vis === false ? ' is-crowded' : ''}`;
+      const cls = `tag is-${st}${hot ? ' is-hover' : ''}${selected === m.id ? ' is-selected' : ''}${n.vis === false ? ' is-crowded' : ''}${n.label.classList.contains('is-under') ? ' is-under' : ''}`;
       if (n.label.className !== cls) { n.label.className = cls; n.dirty = true; }
       const scls = `tag-stem is-${st}${n.vis === false ? ' is-crowded' : ''}${n.off ? ' is-off' : ''}`; if (n.stemEl.className !== scls) n.stemEl.className = scls;
       setHTML(n, n.label, `<i class="tg-dot"></i><span class="tg-name">${esc(m.name)}</span><b class="tg-t">${temp}${temp === '—' ? '' : '<small>°</small>'}</b>${run?.length ? `<span class="tg-run">${esc(run.slice(0, 2).join(' · '))}</span>` : ''}`);
@@ -462,7 +462,7 @@ export async function createScene(host, { onHover = () => {}, onSelect = () => {
       c.ring.material.color.set(st === 'normal' ? STATUS_COLOR.busy : STATUS_COLOR[st]);
       const card = (snap.local_ai || []).find((x) => x.slot === 'spark'), mode = (card?.models || []).find((x) => x.state === 'running');
       const switching = (card?.models || []).some((x) => x.id === '_switching');
-      c.label.className = `tag-cluster is-${st}${c.vis === false ? ' is-crowded' : ''}`;
+      c.label.className = `tag-cluster is-${st}${c.vis === false ? ' is-crowded' : ''}${c.label.classList.contains('is-under') ? ' is-under' : ''}`;
       setHTML(c, c.label, `<span class="tag-k">SPARK ×${ms.length}</span><b>${esc(switching ? '正在切档…' : mode ? mode.name : '档位未知')}</b><span>${num(Math.max(...ms.map((m) => m.temp_c ?? 0)))}°</span>`);
     }
     for (const i of islands) {
@@ -580,10 +580,10 @@ export async function createScene(host, { onHover = () => {}, onSelect = () => {
     }
     return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
   }
-  // 显隐带迟滞：要连续几帧都放得下 / 放不下才切换，转动时不来回闪
+  // 显隐带迟滞：放不下立刻隐去（宁缺不叠），要连续几帧都放得下才重新显示，转动时不来回闪
   function settle(o, el, want, instant) {
     if (o.vis === undefined) o.vis = true;
-    if (want !== o.vis) { o.crowd = (o.crowd || 0) + 1; if (instant || o.crowd > (want ? 4 : 2)) { o.vis = want; o.crowd = 0; el.classList.toggle('is-crowded', !want); o.stemEl?.classList.toggle('is-crowded', !want); } } else o.crowd = 0;
+    if (want !== o.vis) { o.crowd = (o.crowd || 0) + 1; if (instant || o.crowd > (want ? 4 : 0)) { o.vis = want; o.crowd = 0; el.classList.toggle('is-crowded', !want); o.stemEl?.classList.toggle('is-crowded', !want); } } else o.crowd = 0;
   }
   function placeLabels(instant, dt = 1 / 60) {
     if (hudT-- <= 0) { readHud(); hudT = 30; }
@@ -612,10 +612,10 @@ export async function createScene(host, { onHover = () => {}, onSelect = () => {
       if (n.inCluster) continue;
       sizeOf(n, n.label); const off = !n.w; if (n.off !== off) { n.off = off; n.stemEl.classList.toggle('is-off', off); } if (off) continue;
       v.copy(n.top); v.y += .04; const p = toScreen(v);
-      cand.push({ id, n, p, pr: id === selected ? -9 : id === hovered ? -8 : -rank(n.st || 'normal') });
+      cand.push({ id, n, p, pr: id === selected ? -9 : -rank(n.st || 'normal') });   // 悬停不改排布：否则挤开的名牌落到鼠标下，两块来回抢位置
     }
     cand.sort((a, b) => a.pr - b.pr || a.p.z - b.p.z);
-    const stems = [];
+    const stems = [], drawn = [];
     cand.forEach(({ id, n, p }, k) => {
       const others = []; for (const [j, r] of bodies) if (j !== id) others.push(r);
       const onScreen = p.x > -10 && p.x < width + 10 && p.y > 20 && p.y < height + 10;
@@ -631,10 +631,13 @@ export async function createScene(host, { onHover = () => {}, onSelect = () => {
         const cur = n.lvl > low.L ? at(n.lvl) : null;
         if (cur && ok(cur) && (n.downT = (n.downT || 0) + dt) < .4) got = cur; else { got = low; n.downT = 0; }
       }
-      settle(n, n.label, !!got, instant);
-      if (got) { chips.push(got.q); stems.push(got.sr); n.lvl = got.L; }
       const target = STEM0 + (got ? got.L : n.lvl || 0) * (n.h + GAP);
-      n.stemV = instant || n.stemV == null ? target : n.stemV + (target - n.stemV) * (1 - Math.exp(-dt * 12));
+      n.stemV = instant || n.stemV == null ? target : n.stemV + (target - n.stemV) * (1 - Math.exp(-dt * 20));
+      // 引线还在缓动时，画出来的位置可能压着别的牌子：这一帧先隐去，等落定再显示
+      const dr = { x: x - 2, y: p.y - n.stemV - n.h - 2, w: n.w + 4, h: n.h + 4 };
+      if (got && hit(dr, drawn)) got = null;
+      settle(n, n.label, !!got, instant);
+      if (got) { chips.push(got.q); stems.push(got.sr); n.lvl = got.L; drawn.push(dr); }
       put(n.label, x, p.y - n.stemV - n.h, n);
       const sl = Math.max(0, Math.round(n.stemV)); if (sl !== n.stem) { n.stem = sl; n.stemEl.style.height = `${sl}px`; }
       put(n.stemEl, p.x - 3.5, p.y - n.stemV, n.sp || (n.sp = {}));

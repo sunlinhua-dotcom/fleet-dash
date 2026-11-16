@@ -13,11 +13,15 @@ It runs a real 14-machine fleet across home, a campus server room, a cloud VM an
 - **3D hangar** — Three.js, PBR models generated in Blender (`assets3d/`), soft shadows, bloom, a quasar-style centre (accretion disk, jet, star dust), per-machine 45-minute temperature spikes.
 - **Orbit like a 3D viewer** — drag to rotate 360°, wheel / pinch to zoom, right-drag / two fingers to pan, double-click to reset. Input drives a target and the camera eases toward it, so motion stays smooth even when pointer events and screen refresh don't line up.
 - **Tap a machine → detail** — desktop: a side panel; phone: the 3D view expands to full screen from where it was and the camera flies to that machine. Swipe or ‹ › to go through machines.
-- **Labels that stay readable** — solid chips with leader lines, snapped to device pixels (no shimmer while rotating), with screen-space collision avoidance against each other, other machines and the UI.
+- **Labels that stay readable** — solid chips with leader lines, snapped to device pixels (no shimmer while rotating), with screen-space collision avoidance against each other, other machines and the UI. Hovering never reshuffles labels (no flip-flop under the cursor), and labels under the hover card fade out.
 - **Model switchboard** — every switch is a whitelisted command in the hub's config; the relay and the browser only ever see an option id. Confirmation text, ETA, progress and result come back live.
 - **Agentless probes** — the hub reaches each machine with SSH (or any command you give it) and runs a small script over stdin: CPU, memory, disk, temperatures, `nvidia-smi` GPUs, listening ports. Linux, macOS, Windows (NVIDIA and integrated AMD).
 - **Adaptive quality** — no MSAA on high-DPI screens, half-resolution bloom, and automatic step-down when frames get slow. Measured 60 fps (16.7 ms median, 18 ms p95) while rotating on an M3 Pro MacBook; it was 33 / 50 ms before these changes.
+- **What's eating memory** — the machine detail lists the top 3 processes by RAM / VRAM besides the model itself (same-name processes grouped, e.g. `Chrome ×10`), with the model services summed on one line. Linux / macOS via `ps` + `nvidia-smi`; Windows via the GPU Process Memory counter (nvidia-smi reports N/A there).
+- **Projects tab** — optional: point the hub at your code folders and every folder with a `progress.md` becomes a project: intent, folder path (tap to copy), todo progress ring, a 14-day activity strip, a "recent activity" feed, and an orbit view where distance from the centre = days since last touched. Each project gets one of 50 category icons (keyword rules, or your own `hub/project_cats.json`). Done projects archive themselves after 3 days.
 - **Optional feeds** — live Claude Code sessions on the hub machine, plus any task / queue list your own scripts can print as JSON.
+
+![Projects tab](docs/screenshot-projects.jpg)
 
 The UI text is Chinese (simplified). PRs for other languages are welcome.
 

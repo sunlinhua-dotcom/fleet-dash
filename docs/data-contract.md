@@ -37,7 +37,12 @@ Timestamps are milliseconds. Percentages are 0–100. Temperatures are °C. Unkn
       "gpus": [ { "idx": 0, "name": "GB10", "vram_gb": 128, "util": 100, "mem_pct": 85, "temp_c": 63, "power_w": 90 } ],
       "temp_hist": [61, 62, 63],         // last 45 minutes, one point per minute, at most 45
       "flow": 0.8,                       // 0–1, thickness of the light fibre into the centre
-      "probe_ms": 420, "updated": 1794754844000, "error": null
+      "probe_ms": 420, "updated": 1794754844000, "error": null,
+      "mem_total_gb": 128,
+      "procs": [                         // up to 8, grouped by readable name, biggest first; model = it's the model service
+        { "name": "vLLM :8000", "ram_gb": 1.1, "vram_gb": 103.5, "n": 1, "model": true },
+        { "name": "Chrome", "ram_gb": 2.7, "vram_gb": 1.6, "n": 7, "model": false }
+      ]
     }
   ],
   "local_ai": [                          // one card per GPU box (or cluster) on the model page
@@ -61,6 +66,15 @@ Timestamps are milliseconds. Percentages are 0–100. Temperatures are °C. Unkn
     "tasks":    [ { "title": "整理资料", "runner": "a100", "status": "running", "age_s": 300 } ]
   },
   "queue": [ { "title": "视频 · 第 12 镜", "machine": "a100", "kind": "video", "state": "running", "age_s": 120 } ],
+  "projects": [                          // optional (hub config "projects"); omit the key to hide the data
+    { "id": "1f00", "name": "home-fleet-dash", "path": "~/code/home-fleet-dash", "dir": "~/code/home-fleet-dash",
+      "intent": "one line: what this project is for", "cat": "dashboard",   // cat = icon key, see web/src/js/icons.js
+      "status": "active",                // active | done | paused | archived | stale
+      "last": 1794754800000, "done": 12, "total": 16, "live": 1, "live_busy": 1,
+      "milestone": "…", "next": ["…"], "days": [0,1,2,0,0,3,1,0,0,2,1,4,2,3],   // days: 14 counts, oldest → today
+      "recent": [ { "d": "2026-11-16", "t": "what was done" } ] }
+  ],
+  "projects_meta": { "scanned_at": 1794754844000, "roots": ["~/code"], "count": 23 },
   "decide_pending": 0,                   // number of queue items waiting for you
   "alerts": [ { "level": "hot", "machine": "a100", "text": "GPU2 温度 88℃" } ]
 }
@@ -84,6 +98,7 @@ Start from `hub/fleet.example.json`.
 | `cards[]` | model cards, see below |
 | `switch[]` | whitelisted commands: `id`, `card`, `model`, `machine`, `label`, `confirm`, `eta_s`, `run` (argv), optional `kind: "free"` (a "release VRAM" action), optional `exit_reasons` (`{"75": "busy, refused"}`) |
 | `feeds` | optional: `sessions`, `tasks`, `queue` = `"claude-code"` (built-in, sessions only) or an argv that prints a JSON array |
+| `projects` | optional: `{"roots": ["~/code"], "depth": 4}`. Every folder under the roots with a `progress.md` is a project. Intent comes from `context.md` (`目标：` / `Goal:` line, or the overview section), else README / HANDOFF / CLAUDE.md. Progress = checked / all `- [ ]` todos in progress.md; activity = dated headings in logs.md. Status: active ≤ 3 days or a live Claude Code session in the folder, paused 3–30 days, stale > 30 days, done when progress.md says 已完成 / 结项 (or every todo is checked), archived 3 days after done. Category: keyword rules in hub.py, overridable per path in `hub/project_cats.json` (`{"cats": {"~/code/x": "video"}, "intents": {...}, "names": {...}}`) |
 
 **`cmd`** is any argv that accepts a shell script on stdin: `["ssh", "my-box"]`, a wrapper script, or `["local"]` for the hub itself. For `win` / `amd` probes the PowerShell one-liner is appended as the last argument (e.g. `["ssh", "win-box"]` with OpenSSH on Windows defaulting to PowerShell).
 

@@ -128,6 +128,37 @@
    "probe_ms": 80,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "vLLM :8000",
+     "ram_gb": 1.1,
+     "vram_gb": 103.5,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "dockerd",
+     "ram_gb": 0.2,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "systemd-journald",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "node_exporter",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 122,
    "model": "spark_asus"
   },
   {
@@ -206,6 +237,37 @@
    "probe_ms": 123,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "vLLM :8000",
+     "ram_gb": 0.7,
+     "vram_gb": 104.6,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "dockerd",
+     "ram_gb": 0.2,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "caddy",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "filebrowser",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 122,
    "model": "spark_msi"
   },
   {
@@ -284,6 +346,30 @@
    "probe_ms": 166,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "vLLM :8000",
+     "ram_gb": 1.1,
+     "vram_gb": 103.5,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "dockerd",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "systemd-journald",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 122,
    "model": "spark_dell"
   },
   {
@@ -362,6 +448,30 @@
    "probe_ms": 209,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "vLLM :8000",
+     "ram_gb": 1.1,
+     "vram_gb": 103.5,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "systemd-journald",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "dockerd",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 122,
    "model": "spark_dell"
   },
   {
@@ -449,6 +559,37 @@
    "probe_ms": 252,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "llama.cpp :8000",
+     "ram_gb": 2.3,
+     "vram_gb": 38.2,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "Blender",
+     "ram_gb": 1.7,
+     "vram_gb": null,
+     "n": 2,
+     "model": false
+    },
+    {
+     "name": "systemd-journald",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "tailscaled",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 60,
    "model": "tower_dual_2080"
   },
   {
@@ -527,6 +668,37 @@
    "probe_ms": 295,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "WSL VM",
+     "ram_gb": 31.3,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "Chrome",
+     "ram_gb": 2.7,
+     "vram_gb": 1.6,
+     "n": 7,
+     "model": false
+    },
+    {
+     "name": "WSL / VM GPU",
+     "ram_gb": 0.0,
+     "vram_gb": 2.1,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "ffmpeg",
+     "ram_gb": 1.1,
+     "vram_gb": null,
+     "n": 2,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 128,
    "model": "tower_white_4060"
   },
   {
@@ -605,6 +777,44 @@
    "probe_ms": 338,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "llama.cpp :8092",
+     "ram_gb": 0.1,
+     "vram_gb": 3.7,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "Whisper",
+     "ram_gb": 0.4,
+     "vram_gb": 2.1,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "Chrome",
+     "ram_gb": 2.6,
+     "vram_gb": 1.7,
+     "n": 9,
+     "model": false
+    },
+    {
+     "name": "Edge",
+     "ram_gb": 1.2,
+     "vram_gb": 0.3,
+     "n": 6,
+     "model": false
+    },
+    {
+     "name": "Python service",
+     "ram_gb": 0.3,
+     "vram_gb": 1.2,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 64,
    "model": "rog_z13"
   },
   {
@@ -627,6 +837,37 @@
    "probe_ms": null,
    "updated": 1794755460000,
    "error": "休眠中",
+   "procs": [
+    {
+     "name": "WSL VM",
+     "ram_gb": 31.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "llama.cpp :4691",
+     "ram_gb": 0.0,
+     "vram_gb": 5.6,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "svchost",
+     "ram_gb": 0.4,
+     "vram_gb": null,
+     "n": 12,
+     "model": false
+    },
+    {
+     "name": "Defender",
+     "ram_gb": 0.3,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 64,
    "model": "tower_titan"
   },
   {
@@ -695,6 +936,30 @@
    "probe_ms": 424,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "Google Chrome",
+     "ram_gb": 1.5,
+     "vram_gb": null,
+     "n": 10,
+     "model": false
+    },
+    {
+     "name": "Photos",
+     "ram_gb": 0.5,
+     "vram_gb": null,
+     "n": 2,
+     "model": false
+    },
+    {
+     "name": "Finder",
+     "ram_gb": 0.2,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 16,
    "model": "mac_mini"
   },
   {
@@ -800,6 +1065,51 @@
    "probe_ms": 467,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "ComfyUI :8181",
+     "ram_gb": 204.0,
+     "vram_gb": 30.8,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "ComfyUI :8180",
+     "ram_gb": 175.4,
+     "vram_gb": 30.4,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "ComfyUI :8182",
+     "ram_gb": 170.9,
+     "vram_gb": 29.7,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "api_gateway :28189",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "prometheus",
+     "ram_gb": 0.3,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "systemd-journald",
+     "ram_gb": 0.2,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 503,
    "model": "server_a100"
   },
   {
@@ -878,6 +1188,37 @@
    "probe_ms": 510,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "ComfyUI :4185",
+     "ram_gb": 3.7,
+     "vram_gb": 9.5,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "WSL VM",
+     "ram_gb": 4.7,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "Desktop Window Manager",
+     "ram_gb": 0.1,
+     "vram_gb": 1.3,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "Edge WebView",
+     "ram_gb": 0.7,
+     "vram_gb": 0.1,
+     "n": 6,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 64,
    "model": "cloud_blade"
   },
   {
@@ -956,6 +1297,37 @@
    "probe_ms": 553,
    "updated": 1794755640000,
    "error": null,
+   "procs": [
+    {
+     "name": "ComfyUI :8188",
+     "ram_gb": 2.1,
+     "vram_gb": 12.4,
+     "n": 1,
+     "model": true
+    },
+    {
+     "name": "Slack",
+     "ram_gb": 0.7,
+     "vram_gb": null,
+     "n": 3,
+     "model": false
+    },
+    {
+     "name": "Defender",
+     "ram_gb": 0.3,
+     "vram_gb": null,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "Desktop Window Manager",
+     "ram_gb": 0.0,
+     "vram_gb": 0.3,
+     "n": 1,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 32,
    "model": "tower_4080"
   },
   {
@@ -978,6 +1350,30 @@
    "probe_ms": null,
    "updated": 1794755460000,
    "error": "暂时无法连接",
+   "procs": [
+    {
+     "name": "vLLM :8008",
+     "ram_gb": 47.9,
+     "vram_gb": 42.1,
+     "n": 2,
+     "model": true
+    },
+    {
+     "name": "postgres",
+     "ram_gb": 0.3,
+     "vram_gb": null,
+     "n": 9,
+     "model": false
+    },
+    {
+     "name": "nginx",
+     "ram_gb": 0.1,
+     "vram_gb": null,
+     "n": 2,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 126,
    "model": "bench_dual_2080"
   },
   {
@@ -1000,6 +1396,30 @@
    "probe_ms": null,
    "updated": 1794755460000,
    "error": "暂时无法连接",
+   "procs": [
+    {
+     "name": "Blender",
+     "ram_gb": 0.1,
+     "vram_gb": 3.9,
+     "n": 3,
+     "model": false
+    },
+    {
+     "name": "SketchUp",
+     "ram_gb": 2.2,
+     "vram_gb": 0.7,
+     "n": 1,
+     "model": false
+    },
+    {
+     "name": "Slack",
+     "ram_gb": 1.3,
+     "vram_gb": null,
+     "n": 4,
+     "model": false
+    }
+   ],
+   "mem_total_gb": 32,
    "model": "tower_3090ti"
   }
  ],
@@ -1473,5 +1893,791 @@
    "machine": "ws-2080",
    "text": "2080 Ti ×2 温度 79℃"
   }
- ]
+ ],
+ "projects": [
+  {
+   "id": "1f00",
+   "name": "home-fleet-dash",
+   "path": "~/code/home-fleet-dash",
+   "dir": "~/code/home-fleet-dash",
+   "intent": "把家里所有显卡机接进一个 3D 看板，实时看温度、负载和正在跑的模型",
+   "cat": "dashboard",
+   "status": "active",
+   "last": 1794751320000,
+   "done": 12,
+   "total": 16,
+   "live": 1,
+   "live_busy": 1,
+   "milestone": "2026-11-15 · 项目页加分类图标",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    1,
+    1,
+    2,
+    5,
+    0,
+    0,
+    3,
+    0,
+    1,
+    3,
+    0,
+    3,
+    1,
+    1
+   ],
+   "recent": [
+    {
+     "d": "2026-11-15",
+     "t": "项目页加分类图标"
+    },
+    {
+     "d": "2026-11-14",
+     "t": "标签避让与平滑转动"
+    },
+    {
+     "d": "2026-11-13",
+     "t": "开源导出"
+    }
+   ]
+  },
+  {
+   "id": "1f61",
+   "name": "voice-studio",
+   "path": "~/code/voice-studio",
+   "dir": "~/code/voice-studio",
+   "intent": "用自己的声音给短视频配音：导演稿分段、整段合成、回读校对",
+   "cat": "voice",
+   "status": "active",
+   "last": 1794738360000,
+   "done": 7,
+   "total": 11,
+   "live": 1,
+   "live_busy": 1,
+   "milestone": "2026-11-15 · 整段合成替代逐句拼接",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    0,
+    2,
+    2,
+    0,
+    1,
+    0,
+    3,
+    2,
+    0,
+    3,
+    0,
+    1,
+    5,
+    5
+   ],
+   "recent": [
+    {
+     "d": "2026-11-15",
+     "t": "整段合成替代逐句拼接"
+    },
+    {
+     "d": "2026-11-14",
+     "t": "多音字读法表"
+    }
+   ]
+  },
+  {
+   "id": "1fc2",
+   "name": "llm-router",
+   "path": "~/code/llm-router",
+   "dir": "~/code/llm-router",
+   "intent": "本地大模型统一入口：按任务自动挑模型，失败自动换一台",
+   "cat": "llm",
+   "status": "active",
+   "last": 1794703800000,
+   "done": 5,
+   "total": 9,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-15 · 加超时重试",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    3,
+    0,
+    3,
+    3,
+    2,
+    0,
+    1,
+    0,
+    3,
+    1,
+    1,
+    2,
+    1,
+    1
+   ],
+   "recent": [
+    {
+     "d": "2026-11-15",
+     "t": "加超时重试"
+    },
+    {
+     "d": "2026-11-13",
+     "t": "接入第三台机器"
+    }
+   ]
+  },
+  {
+   "id": "2023",
+   "name": "video-batch",
+   "path": "~/code/video-batch",
+   "dir": "~/code/video-batch",
+   "intent": "图生视频批量出片：多台机器拉式排队，每出一条就进剪辑",
+   "cat": "videoai",
+   "status": "active",
+   "last": 1794651960000,
+   "done": 9,
+   "total": 14,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-14 · 金丝雀件跑通",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    3,
+    0,
+    3,
+    1,
+    3,
+    5,
+    1,
+    0,
+    3,
+    3,
+    5,
+    1,
+    1,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-14",
+     "t": "金丝雀件跑通"
+    },
+    {
+     "d": "2026-11-12",
+     "t": "断点续跑"
+    }
+   ]
+  },
+  {
+   "id": "2084",
+   "name": "product-3d-site",
+   "path": "~/code/product-3d-site",
+   "dir": "~/code/product-3d-site",
+   "intent": "产品提案站：每一节一个可转动的 3D 主视觉，手机竖屏也能看",
+   "cat": "web3d",
+   "status": "active",
+   "last": 1794574200000,
+   "done": 3,
+   "total": 10,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-13 · 首屏 3D 换真模型",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    0,
+    3,
+    5,
+    0,
+    3,
+    0,
+    3,
+    1,
+    2,
+    5,
+    3,
+    2,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-13",
+     "t": "首屏 3D 换真模型"
+    },
+    {
+     "d": "2026-11-11",
+     "t": "手机重排"
+    }
+   ]
+  },
+  {
+   "id": "20e5",
+   "name": "scratch",
+   "path": "~/code/scratch",
+   "dir": "~/code/scratch",
+   "intent": "临时试验和一次性脚本",
+   "cat": "scratch",
+   "status": "active",
+   "last": 1794729720000,
+   "done": 0,
+   "total": 0,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-15 · 试了三个转写模型",
+   "next": [],
+   "days": [
+    1,
+    2,
+    3,
+    2,
+    1,
+    1,
+    1,
+    1,
+    5,
+    1,
+    0,
+    3,
+    1,
+    3
+   ],
+   "recent": [
+    {
+     "d": "2026-11-15",
+     "t": "试了三个转写模型"
+    }
+   ]
+  },
+  {
+   "id": "2146",
+   "name": "cafe-shorts",
+   "path": "~/code/cafe-shorts",
+   "dir": "~/code/cafe-shorts",
+   "intent": "给一家咖啡店做每周 3 条短视频的内容系统",
+   "cat": "drink",
+   "status": "done",
+   "last": 1794626040000,
+   "done": 8,
+   "total": 8,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-14 · 第四周三条交付",
+   "next": [],
+   "days": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    1,
+    2,
+    1,
+    0,
+    0,
+    2,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-14",
+     "t": "第四周三条交付"
+    },
+    {
+     "d": "2026-11-10",
+     "t": "模板定稿"
+    }
+   ]
+  },
+  {
+   "id": "21a7",
+   "name": "kids-ai-class",
+   "path": "~/code/kids-ai-class",
+   "dir": "~/code/kids-ai-class",
+   "intent": "给朋友的孩子准备一堂 2 小时的 AI 编程入门课",
+   "cat": "edu",
+   "status": "done",
+   "last": 1794548280000,
+   "done": 6,
+   "total": 6,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-13 · 课件定稿",
+   "next": [],
+   "days": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2,
+    2,
+    0,
+    1,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-13",
+     "t": "课件定稿"
+    },
+    {
+     "d": "2026-11-11",
+     "t": "试讲"
+    }
+   ]
+  },
+  {
+   "id": "2208",
+   "name": "esp32-voice-box",
+   "path": "~/code/esp32-voice-box",
+   "dir": "~/code/esp32-voice-box",
+   "intent": "ESP32 语音小盒子：唤醒词、离线听写、屏幕表情",
+   "cat": "hardware",
+   "status": "paused",
+   "last": 1794237240000,
+   "done": 4,
+   "total": 9,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-09 · 屏幕帧率卡在 23 fps 的原因找到了",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-09",
+     "t": "屏幕帧率卡在 23 fps 的原因找到了"
+    }
+   ]
+  },
+  {
+   "id": "2269",
+   "name": "travel-planner",
+   "path": "~/code/travel-planner",
+   "dir": "~/code/travel-planner",
+   "intent": "旅行行程生成器：按天排路线、交通和预算",
+   "cat": "culture",
+   "status": "paused",
+   "last": 1793978040000,
+   "done": 2,
+   "total": 7,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-06 · 地图选点",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    1,
+    2,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-06",
+     "t": "地图选点"
+    }
+   ]
+  },
+  {
+   "id": "22ca",
+   "name": "blender-shots",
+   "path": "~/code/blender-shots",
+   "dir": "~/code/blender-shots",
+   "intent": "Blender 程序化产品渲染：零件库 + 影棚 + 自动取景",
+   "cat": "model3d",
+   "status": "paused",
+   "last": 1794410040000,
+   "done": 6,
+   "total": 10,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-11 · 零件库加显卡和风扇",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    0,
+    0,
+    0,
+    2,
+    1,
+    2,
+    1,
+    0,
+    2,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-11",
+     "t": "零件库加显卡和风扇"
+    }
+   ]
+  },
+  {
+   "id": "232b",
+   "name": "bgm-generator",
+   "path": "~/code/bgm-generator",
+   "dir": "~/code/bgm-generator",
+   "intent": "本地生成一分钟背景音乐，给视频管线当默认配乐",
+   "cat": "music",
+   "status": "paused",
+   "last": 1793718840000,
+   "done": 3,
+   "total": 5,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-03 · 循环点对齐",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-03",
+     "t": "循环点对齐"
+    }
+   ]
+  },
+  {
+   "id": "238c",
+   "name": "vin-lookup",
+   "path": "~/code/vin-lookup",
+   "dir": "~/code/vin-lookup",
+   "intent": "VIN 查询网站：车型、配置和二手配件适配",
+   "cat": "car",
+   "status": "paused",
+   "last": 1793286840000,
+   "done": 5,
+   "total": 12,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-10-29 · 品牌库导入",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-10-29",
+     "t": "品牌库导入"
+    }
+   ]
+  },
+  {
+   "id": "23ed",
+   "name": "receipt-ocr",
+   "path": "~/code/receipt-ocr",
+   "dir": "~/code/receipt-ocr",
+   "intent": "把发票照片批量识别成表格，月底自动汇总",
+   "cat": "data",
+   "status": "paused",
+   "last": 1792941240000,
+   "done": 4,
+   "total": 6,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-10-25 · 金额校验",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-10-25",
+     "t": "金额校验"
+    }
+   ]
+  },
+  {
+   "id": "244e",
+   "name": "home-tunnel",
+   "path": "~/code/home-tunnel",
+   "dir": "~/code/home-tunnel",
+   "intent": "家里的服务上公网：隧道 + 自动续证 + 访问日志",
+   "cat": "network",
+   "status": "paused",
+   "last": 1792509240000,
+   "done": 7,
+   "total": 9,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-10-20 · 换成隧道方案",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-10-20",
+     "t": "换成隧道方案"
+    }
+   ]
+  },
+  {
+   "id": "24af",
+   "name": "cat-companion",
+   "path": "~/code/cat-companion",
+   "dir": "~/code/cat-companion",
+   "intent": "把自家猫做成桌面宠物和手机陪伴页",
+   "cat": "pet",
+   "status": "paused",
+   "last": 1794064440000,
+   "done": 2,
+   "total": 8,
+   "live": 0,
+   "live_busy": 0,
+   "milestone": "2026-11-07 · 抠图与动作表",
+   "next": [
+    "补测试",
+    "写使用说明"
+   ],
+   "days": [
+    2,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "recent": [
+    {
+     "d": "2026-11-07",
+     "t": "抠图与动作表"
+    }
+   ]
+  },
+  {
+   "id": "2510",
+   "name": "weight-tracker",
+   "path": "~/code/weight-tracker",
+   "dir": "~/code/weight-tracker",
+   "intent": "极简减重记录 PWA：拍照记餐、每周趋势",
+   "cat": "health",
+   "status": "archived",
+   "last": 1793891640000,
+   "done": 9,
+   "total": 9,
+   "live": 0,
+   "live_busy": 0
+  },
+  {
+   "id": "2571",
+   "name": "brand-kit",
+   "path": "~/code/brand-kit",
+   "dir": "~/code/brand-kit",
+   "intent": "小品牌视觉套件：logo、配色、海报模板",
+   "cat": "design",
+   "status": "archived",
+   "last": 1793459640000,
+   "done": 5,
+   "total": 5,
+   "live": 0,
+   "live_busy": 0
+  },
+  {
+   "id": "25d2",
+   "name": "pitch-deck-3d",
+   "path": "~/code/pitch-deck-3d",
+   "dir": "~/code/pitch-deck-3d",
+   "intent": "翻页式 3D 提案演示，可导出 PPTX",
+   "cat": "slides",
+   "status": "archived",
+   "last": 1792854840000,
+   "done": 7,
+   "total": 7,
+   "live": 0,
+   "live_busy": 0
+  },
+  {
+   "id": "2633",
+   "name": "nas-backup",
+   "path": "~/code/nas-backup",
+   "dir": "~/code/nas-backup",
+   "intent": "整盘备份到 NAS，带校验和增量",
+   "cat": "backup",
+   "status": "stale",
+   "last": 1790867640000,
+   "done": 3,
+   "total": 4,
+   "live": 0,
+   "live_busy": 0
+  },
+  {
+   "id": "2694",
+   "name": "runner-game",
+   "path": "~/code/runner-game",
+   "dir": "~/code/runner-game",
+   "intent": "48 小时游戏马拉松做的横版跑酷",
+   "cat": "game",
+   "status": "stale",
+   "last": 1787843640000,
+   "done": 6,
+   "total": 9,
+   "live": 0,
+   "live_busy": 0
+  },
+  {
+   "id": "26f5",
+   "name": "docs-translate",
+   "path": "~/code/docs-translate",
+   "dir": "~/code/docs-translate",
+   "intent": "把产品文档批量翻成英日韩三语",
+   "cat": "translate",
+   "status": "stale",
+   "last": 1791299640000,
+   "done": 2,
+   "total": 3,
+   "live": 0,
+   "live_busy": 0
+  },
+  {
+   "id": "2756",
+   "name": "faq-bot",
+   "path": "~/code/faq-bot",
+   "dir": "~/code/faq-bot",
+   "intent": "常见问题问答机器人：只答资料库里有的",
+   "cat": "legal",
+   "status": "stale",
+   "last": 1789571640000,
+   "done": 1,
+   "total": 5,
+   "live": 0,
+   "live_busy": 0
+  }
+ ],
+ "projects_meta": {
+  "scanned_at": 1794755640000,
+  "roots": [
+   "~/code"
+  ],
+  "count": 23
+ }
 }

@@ -11,6 +11,7 @@ RELAY_URL="${FLEETDASH_RELAY:-http://127.0.0.1:8941}"
 [ -s "$HOME/.config/fleetdash/hub_token" ] || { echo "missing ~/.config/fleetdash/hub_token"; exit 1; }
 mkdir -p "$R" "$HOME/Library/Logs" "$HOME/Library/LaunchAgents"
 cp "$SRC/hub.py" "$SRC/fleet.json" "$R/"
+[ -f "$SRC/project_cats.json" ] && cp "$SRC/project_cats.json" "$R/"
 PY=$(command -v python3)
 cat > "$HOME/Library/LaunchAgents/$L.plist" <<PL
 <?xml version="1.0" encoding="UTF-8"?>
@@ -32,6 +33,9 @@ cat > "$HOME/Library/LaunchAgents/$L.plist" <<PL
   <key>StandardErrorPath</key><string>$HOME/Library/Logs/fleetdash-hub.log</string>
 </dict></plist>
 PL
-launchctl bootout "gui/$(id -u)/$L" 2>/dev/null && sleep 2 || true
-launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$L.plist"
+# 先卸旧实例并等它真正退出；立刻 bootstrap 会报 5: Input/output error，服务就没挂上
+launchctl bootout "gui/$(id -u)/$L" 2>/dev/null || true
+for _ in $(seq 20); do launchctl print "gui/$(id -u)/$L" >/dev/null 2>&1 || break; sleep 0.5; done
+for i in 1 2 3; do launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$L.plist" 2>/dev/null && break; sleep 2; done
+launchctl print "gui/$(id -u)/$L" >/dev/null 2>&1 || { echo "LaunchAgent $L 没挂上，看 launchctl print gui/$(id -u)/$L"; exit 1; }
 echo "installed: $R  (LaunchAgent $L, log ~/Library/Logs/fleetdash-hub.log, relay $RELAY_URL)"

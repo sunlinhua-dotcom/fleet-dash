@@ -52,6 +52,8 @@ echo "uptime_s=$(cut -d. -f1 /proc/uptime)"
 df -P / | awk 'NR==2{gsub("%","",$5); print "disk_pct="$5}'
 t=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -n | tail -1); [ -n "$t" ] && echo "cpu_temp_mc=$t"
 command -v nvidia-smi >/dev/null && nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu,temperature.gpu,power.draw --format=csv,noheader,nounits 2>/dev/null | sed 's/^/gpu=/'
+command -v nvidia-smi >/dev/null && nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits 2>/dev/null | sed 's/^/pvr=/'
+ps -eo pid=,rss=,args= --sort=-rss 2>/dev/null | head -40 | cut -c1-240 | sed 's/^ */prc=/'
 printf "ports="; (ss -ltnH 2>/dev/null | awk '{n=split($4,a,":"); print a[n]}') | sort -un | tr '\n' ' '; echo
 """
 
@@ -63,8 +65,16 @@ WIN = ("$ErrorActionPreference='SilentlyContinue';"
        "Write-Output ('uptime_s='+[int]((Get-Date)-$o.LastBootUpTime).TotalSeconds);"
        "$d=Get-CimInstance Win32_LogicalDisk|Where-Object {$_.DeviceID -eq 'C:'};"
        "Write-Output ('disk_pct='+[int](100-100*$d.FreeSpace/$d.Size));"
-       "%EXTRA%"
+       "%EXTRA%%PROC%"
        "Write-Output ('ports='+((Get-NetTCPConnection -State Listen|Select-Object -ExpandProperty LocalPort|Sort-Object -Unique) -join ' '))")
+# Windows: per-process VRAM comes from the "GPU Process Memory" counter (nvidia-smi shows [N/A] under WDDM);
+# a process can appear once per adapter, so take the max, not the sum. python / node also get their command line.
+WIN_PROC = ("$g=@{};(Get-Counter '\\GPU Process Memory(*)\\Dedicated Usage').CounterSamples|ForEach-Object{if($_.InstanceName -match '^pid_(\\d+)_'){$k=[int]$matches[1];if($_.CookedValue -gt [double]$g[$k]){$g[$k]=$_.CookedValue}}};"
+            "$g.GetEnumerator()|Sort-Object Value -Descending|Select-Object -First 6|ForEach-Object{$q=Get-Process -Id $_.Key;Write-Output ('pvr='+$_.Key+','+[int]($_.Value/1MB)+','+$q.ProcessName)};"
+            "$pl=Get-Process|Sort-Object WorkingSet64 -Descending|Select-Object -First 40;"
+            "$pl|ForEach-Object{Write-Output ('prc='+$_.Id+','+[int]($_.WorkingSet64/1KB)+','+$_.ProcessName)};"
+            "$ids=@($pl|Where-Object{$_.ProcessName -match '^(python|pythonw|node|java|javaw|uv)$'}|ForEach-Object{$_.Id})+@($g.Keys);"
+            "Get-CimInstance Win32_Process|Where-Object{($ids -contains $_.ProcessId) -and $_.CommandLine}|ForEach-Object{$l=$_.CommandLine;Write-Output ('pcl='+$_.ProcessId+','+$l.Substring(0,[Math]::Min(240,$l.Length)))};")
 WIN_NV = ("nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu,temperature.gpu,power.draw "
           "--format=csv,noheader,nounits|ForEach-Object {'gpu='+$_};")
 WIN_AMD = ("$m=((Get-Counter '\\GPU Adapter Memory(*)\\Dedicated Usage').CounterSamples|Measure-Object -Property CookedValue -Maximum).Maximum;"
@@ -82,6 +92,7 @@ echo "load1=$(sysctl -n vm.loadavg | awk '{print $2}')"
 bt=$(sysctl -n kern.boottime | sed -E 's/.*sec = ([0-9]+).*/\1/'); echo "uptime_s=$(( $(date +%s) - bt ))"
 df -P /System/Volumes/Data 2>/dev/null | awk 'NR==2{gsub("%","",$5); print "disk_pct="$5}'
 pmset -g therm 2>/dev/null | awk -F'= ' '/CPU_Speed_Limit/{print "speed_limit="$2}'
+ps -Ao pid=,rss=,args= -m 2>/dev/null | head -40 | cut -c1-240 | sed 's/^ */prc=/'
 echo "ports=$(lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null | awk 'NR>1{n=split($9,a,":"); print a[n]}' | sort -un | tr '\n' ' ')"
 """
 
@@ -118,6 +129,8 @@ def kv(text):
         k = k.strip()
         if k == "gpu":
             gpus.append(v.strip())
+        elif k in ("prc", "pvr", "pcl"):
+            out.setdefault("_" + k, []).append(v.strip())
         elif re.fullmatch(r"[a-z_0-9]+", k):
             out[k] = v.strip()
     out["_gpus"] = gpus
@@ -156,7 +169,7 @@ def probe(m):
     elif kind == "mac":
         rc, out, err = run(["bash", "-s"] if local else m["cmd"] + ["bash", "-s"], timeout=to, stdin=MAC)
     elif kind in ("win", "amd"):
-        ps = WIN.replace("%EXTRA%", WIN_AMD if kind == "amd" else WIN_NV)
+        ps = WIN.replace("%EXTRA%", WIN_AMD if kind == "amd" else WIN_NV).replace("%PROC%", WIN_PROC)
         rc, out, err = run(m["cmd"] + [ps], timeout=to)
     else:
         return {"error": f"unknown probe {kind}"}
@@ -169,6 +182,7 @@ def probe(m):
          "cpu_pct": num(d.get("cpu_pct")), "uptime_s": num(d.get("uptime_s")), "disk_pct": num(d.get("disk_pct"))}
     mt, ma = num(d.get("mem_total_kb")), num(d.get("mem_avail_kb"))
     r["mem_pct"] = round(100 * (mt - ma) / mt) if (mt and ma is not None) else None
+    r["mem_total_gb"] = round(mt / 1048576) if mt else None
     r["gpus"] = parse_gpus(d["_gpus"])
     r["ports"] = sorted({int(x) for x in d.get("ports", "").split() if x.isdigit()})
     cpu_t = num(d.get("cpu_temp_mc"))
@@ -180,7 +194,96 @@ def probe(m):
         r["cpu_temp_c"] = round(dk / 10 - 273.15) if dk else None
     if d.get("speed_limit"):
         r["speed_limit"] = num(d["speed_limit"])
+    try:   # cap: total VRAM (AMD: what the whole adapter uses) — integrated GPUs sometimes report absurd per-process numbers
+        cap = (num(d.get("amd_vram_b"), 0) / 2**30) if kind == "amd" else sum(g.get("vram_gb") or 0 for g in r.get("gpus") or [])
+        r["procs"] = proc_top(d, kind, cap or None)
+    except Exception as e:  # noqa: BLE001
+        log("procs", m["id"], e)
     return r
+
+# ------------------------------------------------------------------ top memory / VRAM processes per machine
+PROC_SKIP = re.compile(r"^(memory compression|system|registry|idle|secure system|powershell|pwsh|sshd|conhost|ps|bash|sh|sed|head|cut|awk|sort|kernel_task)$", re.I)
+# processes that ARE the model service (listed separately, not in the "top 3 besides the model")
+PROC_MODEL = re.compile(r"sglang|vllm|llama[-_.]?(server|cpp)|ollama|trtllm|tensorrt|text-generation|exllama|tabbyapi|koboldcpp|lm ?studio|comfy|whisper|cosyvoice|fish[-_]?speech|main\.py .*--listen", re.I)
+PROC_KNOWN = [(r"sglang", "SGLang"), (r"vllm", "vLLM"), (r"llama[-_.]?(server|cpp)", "llama.cpp"), (r"ollama", "Ollama"),
+              (r"comfyui|comfy|main\.py .*--listen", "ComfyUI"), (r"trtllm|tensorrt_llm", "TensorRT-LLM"), (r"blender", "Blender"),
+              (r"ffmpeg", "ffmpeg"), (r"whisper", "Whisper"), (r"/apt/methods/", "apt")]
+PROC_NICE = {"vmmemwsl": "WSL VM", "vmmem": "Hyper-V VM", "vmwp": "WSL / VM GPU", "msmpeng": "Defender", "dwm": "Desktop Window Manager",
+             "chrome": "Chrome", "msedge": "Edge", "code": "VS Code", "windowserver": "WindowServer", "systemd-journald": "systemd-journald"}
+_TOK = re.compile(r'"[^"]*"|\S+')
+
+
+def _base(t):
+    t = t.strip('"').rstrip("/\\")
+    return re.sub(r"\.exe$", "", re.split(r"[\\/]", t)[-1], flags=re.I).rstrip(":")
+
+
+def proc_label(args, name=""):
+    """Readable name: Mac .app name, a known service, python/node script or -m module, else the executable; plus :port if given."""
+    a = (args or "").strip()
+    m = re.search(r"/([^/]+?)\.app/", a)
+    if m:
+        return m.group(1)[:40]
+    base = next((lab for rx, lab in PROC_KNOWN if re.search(rx, a or name, re.I)), None)
+    toks = _TOK.findall(a)
+    exe = _base(toks[0]) if toks else (name or "?")
+    if base is None:
+        if exe.lower().rstrip("0123456789.") in ("python", "pythonw", "node", "java", "javaw", "uv", "bun", "deno"):
+            rest = toks[1:]
+            if "-m" in rest and rest.index("-m") + 1 < len(rest):
+                base = rest[rest.index("-m") + 1].split(".")[0]
+            else:
+                sc = next((t for t in rest if not t.startswith("-")), "")
+                if sc:
+                    parts = [x for x in re.split(r"[\\/]", sc.strip('"')) if x]
+                    stem = re.sub(r"\.(py|js|mjs|cjs|ts|jar)$", "", parts[-1])
+                    base = parts[-2] if stem in ("main", "app", "server", "run", "index", "cli", "__main__", "serve") and len(parts) > 1 else stem
+            base = base or exe
+        else:
+            base = name or exe
+    base = PROC_NICE.get(base.lower(), base)
+    port = re.search(r"--port[= ](\d{2,5})", a)
+    return (f"{base} :{port.group(1)}" if port else base)[:40]
+
+
+def proc_top(d, kind, cap_gb=None):
+    """Group the probe's process lines by readable name (chrome ×10 is one row); up to 8 rows, model services flagged."""
+    win = kind in ("win", "amd")
+    ram, names, vr = {}, {}, {}
+    for l in d.get("_prc", []):
+        if win:
+            p = l.split(",", 2)
+            if len(p) == 3:
+                ram[p[0].strip()] = (num(p[1], 0), ""); names[p[0].strip()] = p[2].strip()
+        else:
+            p = l.split(None, 2)
+            if len(p) >= 2:
+                ram[p[0]] = (num(p[1], 0), p[2] if len(p) > 2 else "")
+    for l in d.get("_pvr", []):
+        p = [x.strip() for x in l.split(",")]
+        mb = num(p[1]) if len(p) > 1 else None
+        if mb:
+            vr[p[0]] = vr.get(p[0], 0) + mb
+            if len(p) > 2 and p[2]:
+                names.setdefault(p[0], p[2])
+    cl = dict(l.split(",", 1) for l in d.get("_pcl", []) if "," in l)
+    groups = {}
+    for pid in set(ram) | set(vr):
+        kb, args = ram.get(pid, (0, ""))
+        args, name = cl.get(pid) or args, names.get(pid, "")
+        toks = _TOK.findall(args)
+        if PROC_SKIP.match(name or (_base(toks[0]) if toks else "")):
+            continue
+        lab = proc_label(args, name)
+        g = groups.setdefault(lab, {"name": lab, "ram": 0.0, "vram": 0.0, "n": 0, "model": False})
+        v = vr.get(pid, 0) / 1024
+        if cap_gb and v > cap_gb * 1.02:
+            v = 0
+        g["ram"] += kb / 1048576; g["vram"] += v; g["n"] += 1
+        g["model"] = g["model"] or bool(PROC_MODEL.search(f"{args} {name}"))
+    out = sorted(groups.values(), key=lambda g: -max(g["ram"], g["vram"]))
+    return [{"name": g["name"], "ram_gb": round(g["ram"], 1), "vram_gb": round(g["vram"], 1) if g["vram"] >= 0.05 else None,
+             "n": g["n"], "model": g["model"]} for g in out[:8] if max(g["ram"], g["vram"]) >= 0.05]
 
 
 # ------------------------------------------------------------------ optional feeds
@@ -213,7 +316,7 @@ def claude_code_sessions():
         except (OSError, ValueError):
             continue
         upd = j.get("updatedAt") or j.get("statusUpdatedAt") or 0
-        out.append({"title": (j.get("name") or Path(j.get("cwd", "")).name or "未命名会话")[:60],
+        out.append({"_cwd": j.get("cwd", ""), "title": (j.get("name") or Path(j.get("cwd", "")).name or "未命名会话")[:60],
                     "project": Path(j.get("cwd", "")).name, "status": j.get("status", "idle"),
                     "age_s": int(time.time() - upd / 1000) if upd else None})
     out.sort(key=lambda x: (x["status"] != "busy", x["age_s"] if x["age_s"] is not None else 1e9))
@@ -229,6 +332,284 @@ def feed(spec):
         j = last_json(out)
         return j if isinstance(j, list) else None
     return None
+
+
+# ------------------------------------------------------------------ projects tab (optional): folders that keep a progress.md
+# fleet.json: "projects": {"roots": ["~/code"], "depth": 4}. Status: active ≤ 3 days or a live Claude Code session in the folder,
+# paused 3–30 days, stale > 30 days; done = progress.md says so (or every todo checked), archived 3 days after done.
+PROJ_ROOTS = []
+PROJ_SKIP = {"node_modules", "Library", "dist", "build", "_backups", "archive", "vendor", "venv", ".venv", "site-packages", "Applications", "Movies", "Music", "Pictures"}
+_proj = {"dirs": [], "t": 0}
+PROJ_DEPTH = [4]
+DONE_RE = re.compile(r"(状态|阶段|进度)[^\n]{0,6}[:：]\s*[^\n]{0,8}(已完成|已结项|已交付|结项|完结|全部完成)|项目(已)?完成|✅\s*(全部|项目)?(已)?完成")
+DATE_RE = re.compile(r"(20\d\d)-(\d\d)-(\d\d)")
+
+
+def proj_discover():
+    out = []
+    def walk(d, depth):
+        try:
+            it = list(os.scandir(d))
+        except OSError:
+            return
+        names = {e.name.lower() for e in it if e.is_file()}
+        if "progress.md" in names:
+            out.append(d)
+        if depth >= PROJ_DEPTH[0]:
+            return
+        for e in it:
+            if e.is_dir(follow_symlinks=False) and not e.name.startswith(".") and e.name not in PROJ_SKIP:
+                walk(e.path, depth + 1)
+    for r in PROJ_ROOTS:
+        walk(r, 1)
+    return sorted(set(out))
+
+
+def _read(p, limit=200_000):
+    try:
+        with open(p, encoding="utf-8", errors="replace") as f:
+            return f.read(limit)
+    except OSError:
+        return ""
+
+
+def _find(d, *names):
+    for n in names:
+        for v in (n, n.upper(), n.capitalize()):
+            p = os.path.join(d, v)
+            if os.path.isfile(p):
+                return p
+    return None
+
+
+def _clean(t):
+    t = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", t)
+    t = re.sub(r"[*`_]{1,3}", "", t)
+    return re.sub(r"\s+", " ", t).strip(" -*>|：:\t")
+
+
+def proj_intent(d, up=True):
+    """项目意图：context.md 的「目标：」→「项目概述 / 项目目标」小节第一句 → README / HANDOFF / CLAUDE.md 开头一段；docs 之类子目录再看上一级。"""
+    cf = _find(d, "context.md")
+    ctx = _read(cf, 60_000) if cf else ""
+    m = re.search(r"^\s*[-*]?\s*(?:\*\*)?(?:(?:当前)?(?:项目)?目标|Goal|Intent|Purpose)(?:\*\*)?\s*[:：]\s*(.+)$", ctx, re.M | re.I)
+    if m and len(_clean(m.group(1))) >= 4:
+        return _clean(m.group(1))
+    m = re.search(r"^#+[^\n]*(项目概述|项目目标|目标|概述|简介)[^\n]*\n(.*?)(?=^#+\s|\Z)", ctx, re.M | re.S)
+    if m:
+        for l in m.group(2).splitlines():
+            c = _clean(l)
+            if len(c) >= 6 and not re.match(r"^(名称|路径|类型|技术栈|仓库|线上|地址)\s*[:：/]", c):
+                return c
+    for n in ("README.md", "HANDOFF.md", "CLAUDE.md", "AGENTS.md"):
+        f = _find(d, n)
+        if not f:
+            continue
+        for l in _read(f, 20_000).splitlines():
+            c = _clean(l)
+            if len(c) >= 8 and not l.lstrip().startswith(("#", "!", "<", "```", "|", "[!")) and not c.startswith(("http", "本文件", "This file")):
+                return c
+    if up and os.path.basename(d.rstrip("/")).lower() in ("docs", "web", "app", "src"):
+        return proj_intent(os.path.dirname(d.rstrip("/")), up=False)
+    return ""
+
+
+HEAD_RE = re.compile(r"^#{2,4}\s+[^\n]*?(20\d\d-\d\d-\d\d)([^\n]*)$", re.M)
+BUL_RE = re.compile(r"^\s*[-*|]\s*[^\n]*?(20\d\d-\d\d-\d\d)([^\n]*)$", re.M)
+
+
+def proj_recent(logs, prog, n=3):
+    """最近几条「哪天做了什么」：先取日志里带日期的标题，没有再取进度里带日期的条目。"""
+    def pick(txt, rx, newest_last):
+        out = []
+        for i, m in enumerate(rx.finditer(txt)):
+            t = _clean(re.sub(r"^\s*[·:：—\-|]*\s*(会话\s*#?\d+\s*(续)?\s*[·:：—\-]\s*)?", "", m.group(2)))
+            t = re.sub(r"\s*\|\s*", " · ", t).strip(" ·|")
+            t = re.sub(r"^\d{1,2}:\d\d(:\d\d)?(\s*[+-]\d{4})?\s*\]?\s*[·:：—-]?\s*", "", t)          # 标题里带的时分 / 时区
+            t = re.sub(r"^[\w./-]*\.(md|txt|json|log)[)）]?\s*[:：]?\s*", "", t).strip(" ·:：")    # 日期其实在文件名里
+            if len(t) >= 2:
+                out.append((m.group(1), i if newest_last else -i, t[:90]))
+        out.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return out
+    items = pick(logs, HEAD_RE, True) if logs else []
+    if not items:
+        items = pick(prog, BUL_RE, False)
+    seen, res = set(), []
+    for d_, _, t in items:
+        if t in seen:
+            continue
+        seen.add(t); res.append({"d": d_, "t": t})
+        if len(res) >= n:
+            break
+    return res
+
+
+def proj_one(d, now, live):
+    pf = _find(d, "progress.md")
+    lf = _find(d, "logs.md") or _find(d, "log.md")
+    prog, logs = _read(pf), _read(lf) if lf else ""
+    mt = [os.path.getmtime(p) for p in (pf, lf, _find(d, "context.md"), _find(d, "bug.md"), _find(d, "HANDOFF.md")) if p and os.path.exists(p)]
+    last = max(mt) if mt else 0
+    done_n = len(re.findall(r"^\s*[-*]\s*\[[xX✓]\]", prog, re.M))
+    todo = re.findall(r"^\s*[-*]\s*\[ \]\s*(.+)$", prog, re.M)
+    total = done_n + len(todo)
+    h1 = re.search(r"^#\s+(.+)$", prog, re.M)
+    name = os.path.basename(d.rstrip("/")) or d
+    if name.lower() in ("docs", "web", "app", "project", "src"):
+        name = os.path.basename(os.path.dirname(d.rstrip("/"))) or name
+    if h1 and "·" in h1.group(1):
+        name = h1.group(1).split("·")[-1].strip()[:40] or name
+    # 最新里程碑：「里程碑」小节下第一条；没有就取第一条带日期的列表项
+    ms = None
+    m = re.search(r"^#+[^\n]*里程碑[^\n]*\n(.*?)(?=^#+\s|\Z)", prog, re.M | re.S)
+    if m:
+        ms = next((l.strip(" -*|>\t") for l in m.group(1).splitlines() if l.strip(" -*|>\t") and not set(l.strip()) <= set("|-: ")), None)
+    if not ms:
+        ms = next((l.strip(" -*\t") for l in prog.splitlines() if DATE_RE.search(l) and l.strip().startswith(("-", "*"))), None)
+    # 最近 14 天每天几条记录（日志标题 + 进度里带日期的行）
+    days = [0] * 14
+    today = time.localtime(now)
+    t0 = time.mktime((today.tm_year, today.tm_mon, today.tm_mday, 0, 0, 0, 0, 0, -1))
+    for txt in (logs, prog):
+        for y, mo, da in DATE_RE.findall("\n".join(l for l in txt.splitlines() if l.lstrip().startswith(("#", "-", "*", "|")))):
+            try:
+                t = time.mktime((int(y), int(mo), int(da), 0, 0, 0, 0, 0, -1))
+            except (OverflowError, ValueError):
+                continue
+            k = int(round((t0 - t) / 86400))
+            if 0 <= k < 14:
+                days[13 - k] += 1
+    if last and now - last < 86400 and days[13] == 0:
+        days[13] = 1
+    head = "\n".join(prog.splitlines()[:60])
+    done = bool(DONE_RE.search(head)) or (total >= 3 and done_n == total)
+    age = now - last if last else 1e12
+    sess = [x for x in live if x.get("_cwd", "").rstrip("/") == d.rstrip("/") or x.get("_cwd", "").startswith(d.rstrip("/") + "/")]
+    if done:
+        status = "archived" if age > 3 * 86400 else "done"
+    elif sess or age <= 3 * 86400:
+        status = "active"
+    elif age <= 30 * 86400:
+        status = "paused"
+    else:
+        status = "stale"
+    short = d.replace(str(HOME), "~", 1)
+    ov = proj_overrides()
+    name = (ov.get("names") or {}).get(short) or name
+    intent = ((ov.get("intents") or {}).get(short) or proj_intent(d))[:160]
+    p = {"id": format(abs(hash(d)) % (1 << 40), "x"), "name": name, "path": short, "dir": d, "intent": intent, "cat": proj_cat(short, name, intent), "status": status,
+         "last": int(last * 1000) if last else None, "done": done_n, "total": total,
+         "live": len(sess), "live_busy": sum(1 for x in sess if x.get("status") == "busy")}
+    if status in ("active", "paused", "done"):
+        p.update({"milestone": (ms or "")[:120], "next": [t.strip()[:80] for t in todo[:4]], "days": days, "recent": proj_recent(logs, prog)})
+    return p
+
+
+# 项目分类：先查 project_cats.json（手工对照，网页路径为键），没登记的按关键词打分，都不中归 misc
+CAT_RULES = [
+    ("web3d", "web3d|3d 网页|3d 站|three.js|threejs|webgl|scroll3d|3d 提案|3d 作品集"),
+    ("dashboard", "仪表盘|看板|dashboard|监控|总览|状态面板"),
+    ("vj", "vj|舞台视觉|演唱会|无缝循环"),
+    ("music", "音乐|配乐|bgm|歌词|suno|yue2|作曲|翻唱"),
+    ("voice", "配音|tts|语音合成|音色|旁白|朗读|听写|asr|转写"),
+    ("videoai", "h3|视频模型|图生视频|文生视频|seedance|可灵|ltx|超分"),
+    ("shortvideo", "抖音|短视频|竖版|tiktok|小红书视频|reels|shorts"),
+    ("video", "视频|成片|分镜|口播|官宣片|宣传片|剪辑|镜头|短片|mv"),
+    ("image", "出图|生图|关键帧|海报|comfyui|qwen-image|gpt-image|效果图"),
+    ("model3d", "blender|建模|渲染|glb|3d 模型|cad|白模"),
+    ("llm", "大模型|推理|llm|vllm|sglang|deepseek|glm|qwen|量化|投机解码|微调"),
+    ("gpu", "gpu|显卡|a100|4090|4080|3080|2080|算力机|cuda"),
+    ("cluster", "集群|多机|四机|双机|机队|gb10|spark"),
+    ("network", "vpn|代理|隧道|tailscale|sing-box|xray|cloudflare|dns|路由|pppoe"),
+    ("security", "安全|网关|鉴权|token|密钥|口令|审计"),
+    ("search", "搜索|searxng|检索|爬虫|crawl"),
+    ("data", "数据|采集|抓取|报表|月报|统计|分析"),
+    ("hardware", "esp32|固件|嵌入式|电路|pcb|单片机|硬件|板子"),
+    ("agent", "agent|执行方|codex|claude|派活|harness|自动编码"),
+    ("chat", "聊天|对话|chat|客服机器人"),
+    ("social", "社交|微博|小红书|营销|campaign|种草|公众号"),
+    ("miniprogram", "小程序|客服"),
+    ("app", "app|pwa|ios|android|手机应用"),
+    ("website", "官网|网站|落地页|网页|cms|站点|landing"),
+    ("client", "提案|客户|比稿|方案网页"),
+    ("design", "设计|品牌|视觉规范|logo|版式"),
+    ("slides", "ppt|演示文稿|幻灯片|印刷|画册|pdf"),
+    ("doc", "知识库|知识|资料|文档|笔记|整理|归档"),
+    ("translate", "翻译|多语言|韩文|日文|英文版"),
+    ("game", "游戏|game|关卡"),
+    ("edu", "课程|教学|学习|教育|课堂"),
+    ("finance", "商业计划|收入|获客|财务|定价|报价|增长|投资"),
+    ("automation", "自动化|流水线|定时|批量|工作流|pipeline"),
+    ("backup", "备份|nas|恢复|迁移数据|快照"),
+    ("deploy", "部署|上线|发布|zeabur|docker|vercel|netlify"),
+    ("car", "汽车|vin|车型|大众|路虎|捷豹|宝马|特斯拉"),
+    ("drink", "酒|餐饮|菜品|餐厅|居酒屋|咖啡|饮品|lounge|酒吧"),
+    ("health", "健康|减重|减肥|医疗|运动|睡眠"),
+    ("culture", "文化|旅行|旅游|神社|寺|出行|入境"),
+    ("legal", "法律|律所|律师|合同|专利"),
+    ("industry", "工业|制造|工厂|排产|热处理|生产线"),
+    ("home", "家居|卫浴|户型|装修|平面图|室内"),
+    ("fashion", "服饰|面料|丝绸|服装|时尚"),
+    ("pet", "宠物|猫|狗"),
+    ("phone", "iphone|手机操控|远程控制手机|镜像"),
+    ("product", "水杯|杯|外观|工业设计|实物"),
+    ("research", "调研|研判|评估|研究|可行性"),
+    ("tools", "工具|脚本|命令行|cli|插件"),
+    ("scratch", "临时|试验|草稿|scratch|tmp"),
+]
+def _rx(alts):  # 纯英文词加词边界，免得 ios 命中 studios、vin 命中 vinyl
+    return re.compile("|".join(rf"(?<![a-z]){re.escape(a)}(?![a-z])" if re.fullmatch(r"[a-z0-9 .\-]+", a) else re.escape(a) for a in alts.split("|")), re.I)
+
+
+CAT_RULES = [(k, _rx(v)) for k, v in CAT_RULES]
+_cats = {"t": 0, "data": {}}
+
+
+def proj_overrides():
+    """Optional hub/project_cats.json: {"cats": {"~/code/x": "video"}, "intents": {...}, "names": {...}} (keys = displayed path)."""
+    f = DIR / "project_cats.json"
+    if not f.exists():
+        return {}
+    try:
+        mt = f.stat().st_mtime
+        if mt != _cats["t"]:
+            _cats["data"] = json.loads(f.read_text()); _cats["t"] = mt
+    except Exception as e:  # noqa: BLE001
+        if _cats["t"] != -1:
+            log("project_cats.json unreadable", e); _cats["t"] = -1
+    return _cats["data"]
+
+
+def proj_cat(short, name, intent):
+    hit = (proj_overrides().get("cats") or {}).get(short)
+    if hit:
+        return hit
+    text = f"{name} {intent} {short.rsplit('/', 1)[-1]}"
+    best, score = "misc", 0
+    for k, rx in CAT_RULES:
+        n = len(rx.findall(text))
+        if n > score:
+            best, score = k, n
+    return best
+
+
+def proj_scan(pcfg):
+    PROJ_ROOTS[:] = [os.path.expanduser(r) for r in pcfg.get("roots", [])]
+    PROJ_DEPTH[0] = int(pcfg.get("depth", 4))
+    now = time.time()
+    if now - _proj["t"] > 600 or not _proj["dirs"]:
+        _proj["dirs"] = proj_discover(); _proj["t"] = now
+    live = EXTRA.get("sessions") or []
+    out = []
+    for d in _proj["dirs"]:
+        try:
+            out.append(proj_one(d, now, live))
+        except Exception as e:  # noqa: BLE001
+            log("proj", d, e)
+    rank = {"active": 0, "done": 1, "paused": 2, "archived": 3, "stale": 4}
+    out.sort(key=lambda p: (rank[p["status"]], -(p["last"] or 0)))
+    EXTRA["projects"] = out
+    EXTRA["projects_meta"] = {"scanned_at": int(now * 1000), "roots": [r.replace(str(HOME), "~", 1) for r in PROJ_ROOTS], "count": len(out)}
 
 
 # ------------------------------------------------------------------ snapshot
@@ -276,6 +657,7 @@ def build(cfg):
             "gpus": [{k: g.get(k) for k in ("idx", "name", "vram_gb", "util", "mem_pct", "temp_c", "power_w")} for g in gpus],
             "temp_hist": HIST.get(m["id"], [])[-45:], "flow": round(0.15 + 0.85 * load, 2) if r.get("online") else 0.05,
             "probe_ms": r.get("probe_ms"), "updated": int(r.get("_t", 0) * 1000), "error": r.get("error"),
+            "mem_total_gb": r.get("mem_total_gb"), "procs": r.get("procs") or [],
         })
     # model cards
     busy_machines = set(EXTRA.get("busy_machines", []))
@@ -344,7 +726,8 @@ def build(cfg):
         "headline": headline,
         "sites": [{**s, "wan": None} for s in cfg["sites"]] + [{"id": "hub", "name": "本机", "wan": {"down_mbps": down, "up_mbps": up}}],
         "machines": machines, "local_ai": cards, "switch_options": switch_options,
-        "claude": {"sessions": (EXTRA.get("sessions") or [])[:12], "tasks": (EXTRA.get("tasks") or [])[:12]},
+        "claude": {"sessions": [{k: v for k, v in x.items() if not k.startswith("_")} for x in (EXTRA.get("sessions") or [])[:12]], "tasks": (EXTRA.get("tasks") or [])[:12]},
+        **({"projects": EXTRA["projects"], "projects_meta": EXTRA.get("projects_meta")} if "projects" in EXTRA else {}),
         "queue": queue, "decide_pending": sum(1 for q in queue if q.get("state") == "needs_you"), "alerts": alerts,
     }
 
@@ -420,6 +803,16 @@ def slow_loop(cfg_ref, stop):
                         j = last_json(out)
                         if isinstance(j, dict):
                             EXTRA[k] = j
+            pc = cfg.get("projects")
+            if pc and pc.get("roots") and n % 12 == 0 and not _proj.get("busy"):   # projects: re-read every minute, in the background
+                def scan(pc=pc):
+                    _proj["busy"] = True
+                    try:
+                        proj_scan(pc)
+                    except Exception as e:  # noqa: BLE001
+                        log("projects", e)
+                    _proj["busy"] = False
+                threading.Thread(target=scan, daemon=True).start()
             if n % 12 == 0:   # temperature history: one point per minute, 45 points
                 with LOCK:
                     for mid, r in LAST.items():
