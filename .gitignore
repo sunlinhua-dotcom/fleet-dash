@@ -1,0 +1,10 @@
+# build output
+web/dist/
+node_modules/
+*.log
+.DS_Store
+__pycache__/
+# your own fleet config and secrets never go in git
+hub/fleet.json
+.env
+*.token

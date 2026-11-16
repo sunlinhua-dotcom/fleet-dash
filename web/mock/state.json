@@ -1,0 +1,1477 @@
+{
+ "v": 1,
+ "ts": 1794755640000,
+ "hub": {
+  "id": "hub",
+  "name": "MacBook Pro",
+  "cpu_pct": 32,
+  "mem_pct": 61,
+  "temp_c": 56
+ },
+ "headline": {
+  "text": "A100 · 视频生成 · 短片第 12 镜",
+  "machine": "a100",
+  "age_s": 186
+ },
+ "sites": [
+  {
+   "id": "home",
+   "name": "家里",
+   "wan": {
+    "down_mbps": 94.8,
+    "up_mbps": 28.6
+   },
+   "note": "GB10 集群"
+  },
+  {
+   "id": "campus",
+   "name": "机房",
+   "wan": {
+    "down_mbps": 284.1,
+    "up_mbps": 112.4
+   },
+   "note": "共享计算"
+  },
+  {
+   "id": "cloud",
+   "name": "云端",
+   "wan": {
+    "down_mbps": 32.8,
+    "up_mbps": 8.4
+   },
+   "note": "出图节点"
+  },
+  {
+   "id": "partner",
+   "name": "合作方",
+   "wan": {
+    "down_mbps": 18.6,
+    "up_mbps": 4.2
+   },
+   "note": "协作节点"
+  }
+ ],
+ "machines": [
+  {
+   "id": "spark-a",
+   "name": "Spark A",
+   "site": "home",
+   "kind": "gb10",
+   "role": "GB10 · 集群",
+   "online": true,
+   "status": "busy",
+   "temp_c": 64,
+   "cpu_pct": 28,
+   "mem_pct": 81,
+   "disk_pct": 47,
+   "gpu_pct": 94,
+   "uptime_s": 14721,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "GB10",
+     "vram_gb": 128,
+     "util": 94,
+     "mem_pct": 81,
+     "temp_c": 64,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    60.0,
+    60.5,
+    61.0,
+    61.5,
+    61.9,
+    62.2,
+    62.4,
+    62.6,
+    62.7,
+    62.7,
+    62.6,
+    62.5,
+    62.3,
+    62.0,
+    61.7,
+    61.3,
+    61.0,
+    60.7,
+    60.4,
+    60.2,
+    60.1,
+    60.0,
+    60.0,
+    60.1,
+    60.3,
+    60.6,
+    60.9,
+    61.3,
+    61.8,
+    62.3,
+    62.8,
+    63.3,
+    63.8,
+    64.2,
+    64.6,
+    64.9,
+    65.2,
+    65.4,
+    65.4,
+    65.4,
+    65.3,
+    65.2,
+    65.0,
+    64.7,
+    64.4
+   ],
+   "flow": 0.94,
+   "probe_ms": 80,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "spark_asus"
+  },
+  {
+   "id": "spark-b",
+   "name": "Spark B",
+   "site": "home",
+   "kind": "gb10",
+   "role": "GB10 · 集群主节点",
+   "online": true,
+   "status": "busy",
+   "temp_c": 68,
+   "cpu_pct": 36,
+   "mem_pct": 84,
+   "disk_pct": 52,
+   "gpu_pct": 96,
+   "uptime_s": 29442,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "GB10",
+     "vram_gb": 128,
+     "util": 96,
+     "mem_pct": 84,
+     "temp_c": 68,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    65.7,
+    66.0,
+    66.2,
+    66.3,
+    66.3,
+    66.2,
+    66.1,
+    65.9,
+    65.6,
+    65.3,
+    65.0,
+    64.7,
+    64.4,
+    64.1,
+    63.8,
+    63.7,
+    63.6,
+    63.6,
+    63.6,
+    63.8,
+    64.1,
+    64.4,
+    64.8,
+    65.2,
+    65.7,
+    66.2,
+    66.7,
+    67.2,
+    67.7,
+    68.1,
+    68.4,
+    68.7,
+    68.9,
+    69.0,
+    69.0,
+    68.9,
+    68.8,
+    68.6,
+    68.3,
+    68.0,
+    67.7,
+    67.4,
+    67.0,
+    66.8,
+    66.5
+   ],
+   "flow": 0.96,
+   "probe_ms": 123,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "spark_msi"
+  },
+  {
+   "id": "spark-c",
+   "name": "Spark C",
+   "site": "home",
+   "kind": "gb10",
+   "role": "GB10 · 集群",
+   "online": true,
+   "status": "busy",
+   "temp_c": 66,
+   "cpu_pct": 23,
+   "mem_pct": 78,
+   "disk_pct": 39,
+   "gpu_pct": 91,
+   "uptime_s": 44163,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "GB10",
+     "vram_gb": 128,
+     "util": 91,
+     "mem_pct": 78,
+     "temp_c": 66,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    63.8,
+    63.7,
+    63.5,
+    63.3,
+    63.0,
+    62.6,
+    62.3,
+    62.0,
+    61.7,
+    61.5,
+    61.3,
+    61.2,
+    61.1,
+    61.2,
+    61.3,
+    61.6,
+    61.9,
+    62.2,
+    62.7,
+    63.1,
+    63.7,
+    64.2,
+    64.7,
+    65.1,
+    65.6,
+    65.9,
+    66.2,
+    66.4,
+    66.5,
+    66.6,
+    66.5,
+    66.4,
+    66.2,
+    65.9,
+    65.7,
+    65.3,
+    65.0,
+    64.7,
+    64.4,
+    64.2,
+    64.0,
+    63.9,
+    63.8,
+    63.9,
+    64.1
+   ],
+   "flow": 0.91,
+   "probe_ms": 166,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "spark_dell"
+  },
+  {
+   "id": "spark-d",
+   "name": "Spark D",
+   "site": "home",
+   "kind": "gb10",
+   "role": "GB10 · 集群",
+   "online": true,
+   "status": "normal",
+   "temp_c": 57,
+   "cpu_pct": 18,
+   "mem_pct": 73,
+   "disk_pct": 42,
+   "gpu_pct": 65,
+   "uptime_s": 58884,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "GB10",
+     "vram_gb": 128,
+     "util": 65,
+     "mem_pct": 73,
+     "temp_c": 57,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    53.3,
+    53.0,
+    52.6,
+    52.3,
+    52.1,
+    51.9,
+    51.7,
+    51.7,
+    51.7,
+    51.8,
+    52.1,
+    52.3,
+    52.7,
+    53.1,
+    53.6,
+    54.1,
+    54.6,
+    55.1,
+    55.6,
+    56.0,
+    56.4,
+    56.7,
+    56.9,
+    57.1,
+    57.1,
+    57.1,
+    57.0,
+    56.8,
+    56.6,
+    56.3,
+    56.0,
+    55.6,
+    55.3,
+    55.0,
+    54.8,
+    54.6,
+    54.5,
+    54.4,
+    54.5,
+    54.6,
+    54.8,
+    55.1,
+    55.5,
+    55.9,
+    56.4
+   ],
+   "flow": 0.65,
+   "probe_ms": 209,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "spark_dell"
+  },
+  {
+   "id": "ws-2080",
+   "name": "2080 Ti ×2",
+   "site": "home",
+   "kind": "linux",
+   "role": "2×2080 Ti 22G · NVLink",
+   "online": true,
+   "status": "warm",
+   "temp_c": 79,
+   "cpu_pct": 41,
+   "mem_pct": 67,
+   "disk_pct": 61,
+   "gpu_pct": 89,
+   "uptime_s": 73605,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "RTX 2080 Ti",
+     "vram_gb": 22,
+     "util": 89,
+     "mem_pct": 67,
+     "temp_c": 79,
+     "power_w": 89
+    },
+    {
+     "idx": 1,
+     "name": "RTX 2080 Ti",
+     "vram_gb": 22,
+     "util": 87,
+     "mem_pct": 67,
+     "temp_c": 77,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    73.5,
+    73.3,
+    73.3,
+    73.3,
+    73.4,
+    73.6,
+    73.8,
+    74.2,
+    74.6,
+    75.1,
+    75.5,
+    76.1,
+    76.6,
+    77.0,
+    77.5,
+    77.9,
+    78.2,
+    78.5,
+    78.6,
+    78.7,
+    78.7,
+    78.6,
+    78.4,
+    78.2,
+    77.9,
+    77.6,
+    77.3,
+    77.0,
+    76.7,
+    76.4,
+    76.2,
+    76.0,
+    76.0,
+    76.0,
+    76.1,
+    76.3,
+    76.6,
+    76.9,
+    77.3,
+    77.8,
+    78.3,
+    78.8,
+    79.3,
+    79.8,
+    80.2
+   ],
+   "flow": 0.89,
+   "probe_ms": 252,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "tower_dual_2080"
+  },
+  {
+   "id": "ws-4060",
+   "name": "Render 4060",
+   "site": "home",
+   "kind": "windows",
+   "role": "渲染 · 搜索 · 转码",
+   "online": true,
+   "status": "busy",
+   "temp_c": 62,
+   "cpu_pct": 38,
+   "mem_pct": 57,
+   "disk_pct": 38,
+   "gpu_pct": 72,
+   "uptime_s": 88326,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "RTX 4060",
+     "vram_gb": 8,
+     "util": 72,
+     "mem_pct": 57,
+     "temp_c": 62,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    56.1,
+    56.3,
+    56.7,
+    57.1,
+    57.5,
+    58.0,
+    58.5,
+    59.0,
+    59.5,
+    60.0,
+    60.4,
+    60.7,
+    61.0,
+    61.2,
+    61.3,
+    61.3,
+    61.2,
+    61.1,
+    60.8,
+    60.6,
+    60.3,
+    59.9,
+    59.6,
+    59.3,
+    59.0,
+    58.8,
+    58.6,
+    58.6,
+    58.6,
+    58.6,
+    58.8,
+    59.1,
+    59.4,
+    59.8,
+    60.3,
+    60.8,
+    61.3,
+    61.8,
+    62.3,
+    62.7,
+    63.1,
+    63.5,
+    63.7,
+    63.9,
+    64.0
+   ],
+   "flow": 0.72,
+   "probe_ms": 295,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "tower_white_4060"
+  },
+  {
+   "id": "apu-395",
+   "name": "Ryzen AI 395",
+   "site": "home",
+   "kind": "windows",
+   "role": "Radeon 8060S · 语音 · 视觉",
+   "online": true,
+   "status": "normal",
+   "temp_c": 52,
+   "cpu_pct": 19,
+   "mem_pct": 43,
+   "disk_pct": 41,
+   "gpu_pct": 28,
+   "uptime_s": 103047,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "Radeon 8060S",
+     "vram_gb": 64,
+     "util": 28,
+     "mem_pct": 43,
+     "temp_c": 52,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    47.4,
+    47.9,
+    48.5,
+    49.0,
+    49.4,
+    49.8,
+    50.2,
+    50.5,
+    50.7,
+    50.8,
+    50.8,
+    50.8,
+    50.7,
+    50.5,
+    50.2,
+    49.9,
+    49.6,
+    49.3,
+    48.9,
+    48.7,
+    48.4,
+    48.2,
+    48.1,
+    48.1,
+    48.2,
+    48.3,
+    48.6,
+    48.9,
+    49.3,
+    49.7,
+    50.2,
+    50.7,
+    51.2,
+    51.7,
+    52.2,
+    52.6,
+    52.9,
+    53.2,
+    53.4,
+    53.5,
+    53.6,
+    53.5,
+    53.4,
+    53.2,
+    52.9
+   ],
+   "flow": 0.28,
+   "probe_ms": 338,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "rog_z13"
+  },
+  {
+   "id": "ws-titan",
+   "name": "TITAN V",
+   "site": "home",
+   "kind": "windows",
+   "role": "TITAN V · 语音",
+   "online": false,
+   "status": "asleep",
+   "temp_c": null,
+   "cpu_pct": null,
+   "mem_pct": null,
+   "disk_pct": null,
+   "gpu_pct": null,
+   "uptime_s": null,
+   "gpus": [],
+   "temp_hist": [],
+   "flow": 0,
+   "probe_ms": null,
+   "updated": 1794755460000,
+   "error": "休眠中",
+   "model": "tower_titan"
+  },
+  {
+   "id": "mac-mini",
+   "name": "Mac mini",
+   "site": "home",
+   "kind": "mac",
+   "role": "NAS · 消息中继",
+   "online": true,
+   "status": "normal",
+   "temp_c": 44,
+   "cpu_pct": 12,
+   "mem_pct": 47,
+   "disk_pct": 72,
+   "gpu_pct": null,
+   "uptime_s": 132489,
+   "gpus": [],
+   "temp_hist": [
+    42.0,
+    42.0,
+    41.9,
+    41.7,
+    41.5,
+    41.2,
+    40.9,
+    40.5,
+    40.2,
+    39.9,
+    39.7,
+    39.5,
+    39.3,
+    39.3,
+    39.3,
+    39.4,
+    39.6,
+    39.9,
+    40.2,
+    40.6,
+    41.1,
+    41.6,
+    42.1,
+    42.6,
+    43.1,
+    43.5,
+    43.9,
+    44.2,
+    44.5,
+    44.6,
+    44.7,
+    44.7,
+    44.6,
+    44.4,
+    44.2,
+    43.9,
+    43.6,
+    43.2,
+    42.9,
+    42.6,
+    42.4,
+    42.2,
+    42.0,
+    42.0,
+    42.0
+   ],
+   "flow": 0.12,
+   "probe_ms": 424,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "mac_mini"
+  },
+  {
+   "id": "a100",
+   "name": "A100 ×4",
+   "site": "campus",
+   "kind": "server",
+   "role": "4×A100 40G · 多人共享",
+   "online": true,
+   "status": "hot",
+   "temp_c": 90,
+   "cpu_pct": 72,
+   "mem_pct": 81,
+   "disk_pct": 64,
+   "gpu_pct": 98,
+   "uptime_s": 147210,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "A100",
+     "vram_gb": 40,
+     "util": 98,
+     "mem_pct": 81,
+     "temp_c": 90,
+     "power_w": 271
+    },
+    {
+     "idx": 1,
+     "name": "A100",
+     "vram_gb": 40,
+     "util": 96,
+     "mem_pct": 81,
+     "temp_c": 88,
+     "power_w": 271
+    },
+    {
+     "idx": 2,
+     "name": "A100",
+     "vram_gb": 40,
+     "util": 94,
+     "mem_pct": 81,
+     "temp_c": 86,
+     "power_w": 271
+    },
+    {
+     "idx": 3,
+     "name": "A100",
+     "vram_gb": 40,
+     "util": 92,
+     "mem_pct": 81,
+     "temp_c": 84,
+     "power_w": 271
+    }
+   ],
+   "temp_hist": [
+    86.8,
+    86.5,
+    86.2,
+    85.9,
+    85.6,
+    85.3,
+    85.1,
+    84.9,
+    84.8,
+    84.8,
+    84.9,
+    85.1,
+    85.4,
+    85.7,
+    86.1,
+    86.6,
+    87.0,
+    87.6,
+    88.1,
+    88.5,
+    89.0,
+    89.4,
+    89.7,
+    90.0,
+    90.2,
+    90.3,
+    90.3,
+    90.2,
+    90.0,
+    89.8,
+    89.5,
+    89.2,
+    88.9,
+    88.6,
+    88.3,
+    88.0,
+    87.8,
+    87.6,
+    87.5,
+    87.6,
+    87.7,
+    87.8,
+    88.1,
+    88.4,
+    88.9
+   ],
+   "flow": 0.98,
+   "probe_ms": 467,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "server_a100"
+  },
+  {
+   "id": "cloud-gpu",
+   "name": "Cloud 3080 Ti",
+   "site": "cloud",
+   "kind": "windows",
+   "role": "3080 Ti · 出图",
+   "online": true,
+   "status": "busy",
+   "temp_c": 68,
+   "cpu_pct": 43,
+   "mem_pct": 65,
+   "disk_pct": 56,
+   "gpu_pct": 86,
+   "uptime_s": 161931,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "RTX 3080 Ti",
+     "vram_gb": 12,
+     "util": 86,
+     "mem_pct": 65,
+     "temp_c": 68,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    62.9,
+    62.7,
+    62.5,
+    62.4,
+    62.4,
+    62.5,
+    62.6,
+    62.9,
+    63.2,
+    63.6,
+    64.0,
+    64.5,
+    65.0,
+    65.5,
+    66.0,
+    66.5,
+    66.9,
+    67.2,
+    67.5,
+    67.7,
+    67.8,
+    67.8,
+    67.8,
+    67.6,
+    67.4,
+    67.2,
+    66.9,
+    66.5,
+    66.2,
+    65.9,
+    65.6,
+    65.4,
+    65.2,
+    65.1,
+    65.1,
+    65.2,
+    65.4,
+    65.6,
+    65.9,
+    66.3,
+    66.8,
+    67.3,
+    67.8,
+    68.3,
+    68.8
+   ],
+   "flow": 0.86,
+   "probe_ms": 510,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "cloud_blade"
+  },
+  {
+   "id": "ws-4080",
+   "name": "Studio 4080",
+   "site": "partner",
+   "kind": "windows",
+   "role": "RTX 4080 · 出片 / 出图 / 语音",
+   "online": true,
+   "status": "normal",
+   "temp_c": 48,
+   "cpu_pct": 18,
+   "mem_pct": 42,
+   "disk_pct": 36,
+   "gpu_pct": 18,
+   "uptime_s": 176652,
+   "gpus": [
+    {
+     "idx": 0,
+     "name": "RTX 4080",
+     "vram_gb": 16,
+     "util": 18,
+     "mem_pct": 42,
+     "temp_c": 48,
+     "power_w": 89
+    }
+   ],
+   "temp_hist": [
+    42.0,
+    42.1,
+    42.4,
+    42.7,
+    43.0,
+    43.5,
+    43.9,
+    44.4,
+    45.0,
+    45.5,
+    45.9,
+    46.4,
+    46.7,
+    47.0,
+    47.2,
+    47.4,
+    47.4,
+    47.4,
+    47.2,
+    47.0,
+    46.8,
+    46.5,
+    46.2,
+    45.8,
+    45.5,
+    45.2,
+    45.0,
+    44.8,
+    44.7,
+    44.7,
+    44.7,
+    44.9,
+    45.1,
+    45.4,
+    45.8,
+    46.2,
+    46.7,
+    47.2,
+    47.7,
+    48.2,
+    48.7,
+    49.1,
+    49.5,
+    49.8,
+    50.0
+   ],
+   "flow": 0.18,
+   "probe_ms": 553,
+   "updated": 1794755640000,
+   "error": null,
+   "model": "tower_4080"
+  },
+  {
+   "id": "lab-2080",
+   "name": "Lab 2080",
+   "site": "partner",
+   "kind": "linux",
+   "role": "2×2080 Ti · Flash-Next",
+   "online": false,
+   "status": "offline",
+   "temp_c": null,
+   "cpu_pct": null,
+   "mem_pct": null,
+   "disk_pct": null,
+   "gpu_pct": null,
+   "uptime_s": null,
+   "gpus": [],
+   "temp_hist": [],
+   "flow": 0,
+   "probe_ms": null,
+   "updated": 1794755460000,
+   "error": "暂时无法连接",
+   "model": "bench_dual_2080"
+  },
+  {
+   "id": "lab-3090",
+   "name": "Lab 3090 Ti",
+   "site": "partner",
+   "kind": "windows",
+   "role": "3090 Ti · H3",
+   "online": false,
+   "status": "offline",
+   "temp_c": null,
+   "cpu_pct": null,
+   "mem_pct": null,
+   "disk_pct": null,
+   "gpu_pct": null,
+   "uptime_s": null,
+   "gpus": [],
+   "temp_hist": [],
+   "flow": 0,
+   "probe_ms": null,
+   "updated": 1794755460000,
+   "error": "暂时无法连接",
+   "model": "tower_3090ti"
+  }
+ ],
+ "local_ai": [
+  {
+   "machine": "spark-b",
+   "slot": "spark",
+   "label": "四台 GB10 · 统一内存 4×128G",
+   "models": [
+    {
+     "id": "glmf4",
+     "name": "GLM-5.3-Flash ×4",
+     "state": "running",
+     "option": null
+    },
+    {
+     "id": "duo",
+     "name": "GLM Flash ×2 + 出片",
+     "state": "idle",
+     "option": "spark:duo"
+    },
+    {
+     "id": "ds",
+     "name": "DeepSeek V4.1 ×4",
+     "state": "idle",
+     "option": "spark:ds"
+    },
+    {
+     "id": "ds2",
+     "name": "DeepSeek ×2 + 出片",
+     "state": "idle",
+     "option": "spark:ds2"
+    },
+    {
+     "id": "glmfull",
+     "name": "GLM-5.3 满血 ×4",
+     "state": "idle",
+     "option": "spark:glmfull"
+    },
+    {
+     "id": "h3quad",
+     "name": "H3 出片 ×4",
+     "state": "idle",
+     "option": "spark:h3quad"
+    },
+    {
+     "id": "musicquad",
+     "name": "YuE2 出歌 ×4",
+     "state": "idle",
+     "option": "spark:musicquad"
+    },
+    {
+     "id": "dualglm",
+     "name": "两套 GLM",
+     "state": "idle",
+     "option": "spark:dualglm"
+    }
+   ],
+   "switchable": true
+  },
+  {
+   "machine": "ws-2080",
+   "slot": "ws-2080",
+   "label": "双 RTX 2080 Ti · 44G",
+   "models": [
+    {
+     "id": "qwen27b",
+     "name": "Qwen3.8 27B",
+     "state": "running",
+     "option": null
+    },
+    {
+     "id": "flashnext",
+     "name": "Qwen3.8 Flash-Next",
+     "state": "idle",
+     "option": "ws-2080:flashnext"
+    },
+    {
+     "id": "h3video",
+     "name": "MiniMax H3 视频",
+     "state": "idle",
+     "option": "ws-2080:h3video"
+    },
+    {
+     "id": "h3image",
+     "name": "H3 Image",
+     "state": "idle",
+     "option": "ws-2080:h3image"
+    }
+   ],
+   "switchable": true
+  },
+  {
+   "machine": "a100",
+   "slot": "a100",
+   "label": "4×A100 · 40G",
+   "models": [
+    {
+     "id": "h3-gpu01",
+     "name": "H3 · GPU 0–1",
+     "state": "busy",
+     "option": null
+    },
+    {
+     "id": "qwen-gpu2",
+     "name": "Qwen · GPU 2",
+     "state": "busy",
+     "option": null
+    },
+    {
+     "id": "shared-gpu3",
+     "name": "共享服务 · GPU 3",
+     "state": "locked",
+     "option": null
+    }
+   ],
+   "switchable": false,
+   "kind": "gpus"
+  },
+  {
+   "machine": "ws-4080",
+   "slot": "ws-4080",
+   "label": "RTX 4080 · 16G",
+   "models": [
+    {
+     "id": "h3",
+     "name": "MiniMax H3",
+     "state": "running",
+     "option": null
+    },
+    {
+     "id": "image",
+     "name": "Qwen-Image 2.1",
+     "state": "idle",
+     "option": "ws-4080:image"
+    },
+    {
+     "id": "voice",
+     "name": "语音听写",
+     "state": "idle",
+     "option": "ws-4080:voice"
+    }
+   ],
+   "switchable": true
+  },
+  {
+   "machine": "cloud-gpu",
+   "slot": "cloud-gpu",
+   "label": "RTX 3080 Ti · 12G",
+   "models": [
+    {
+     "id": "image",
+     "name": "Qwen-Image 2.1",
+     "state": "running",
+     "option": null
+    }
+   ],
+   "switchable": true
+  },
+  {
+   "machine": "apu-395",
+   "slot": "apu-395",
+   "label": "Radeon 8060S · 64G 共享",
+   "models": [
+    {
+     "id": "vlm",
+     "name": "视觉模型",
+     "state": "locked",
+     "option": null
+    },
+    {
+     "id": "asr",
+     "name": "听写",
+     "state": "idle",
+     "option": null
+    },
+    {
+     "id": "tts",
+     "name": "Qwen3-TTS",
+     "state": "running",
+     "option": null
+    },
+    {
+     "id": "wush",
+     "name": "方言配音",
+     "state": "idle",
+     "option": null
+    },
+    {
+     "id": "video",
+     "name": "视频生成",
+     "state": "locked",
+     "option": null
+    },
+    {
+     "id": "gateway",
+     "name": "API 网关",
+     "state": "locked",
+     "option": null
+    }
+   ],
+   "switchable": false
+  },
+  {
+   "machine": "ws-titan",
+   "slot": "ws-titan",
+   "label": "TITAN V 12G + 2060S 8G",
+   "models": [
+    {
+     "id": "asr",
+     "name": "听写",
+     "state": "asleep",
+     "option": null
+    },
+    {
+     "id": "wush",
+     "name": "方言配音",
+     "state": "asleep",
+     "option": null
+    },
+    {
+     "id": "nar",
+     "name": "普通话旁白",
+     "state": "asleep",
+     "option": null
+    },
+    {
+     "id": "tts",
+     "name": "Qwen3-TTS",
+     "state": "asleep",
+     "option": null
+    }
+   ],
+   "switchable": false
+  },
+  {
+   "machine": "lab-2080",
+   "slot": "lab-2080",
+   "label": "2×2080 Ti · 合作方维护",
+   "models": [
+    {
+     "id": "flashnext",
+     "name": "Qwen3.8 Flash-Next",
+     "state": "asleep",
+     "option": null
+    }
+   ],
+   "switchable": false
+  },
+  {
+   "machine": "lab-3090",
+   "slot": "lab-3090",
+   "label": "RTX 3090 Ti · 别人也在用",
+   "models": [
+    {
+     "id": "h3",
+     "name": "MiniMax H3",
+     "state": "asleep",
+     "option": null
+    }
+   ],
+   "switchable": false
+  },
+  {
+   "machine": "ws-4060",
+   "slot": "ws-4060",
+   "label": "RTX 4060 8G + 2060 6G",
+   "models": [
+    {
+     "id": "search",
+     "name": "搜索服务",
+     "state": "running",
+     "option": null
+    }
+   ],
+   "switchable": false
+  }
+ ],
+ "switch_options": [
+  {
+   "id": "spark:glmf4",
+   "machine": "spark-b",
+   "label": "四台 GB10 切到 GLM-5.3-Flash ×4（默认档）",
+   "confirm": "四台一起切，服务 约 6–8 分钟不可用；有出片任务会自动拒绝",
+   "eta_s": 480
+  },
+  {
+   "id": "spark:duo",
+   "machine": "spark-b",
+   "label": "四台 GB10 切到 GLM ×2 + 出片",
+   "confirm": "约 2–3 分钟；GLM 改由另两台提供",
+   "eta_s": 160
+  },
+  {
+   "id": "spark:ds",
+   "machine": "spark-b",
+   "label": "四台 GB10 切到 DeepSeek V4.1 ×4",
+   "confirm": "冷启动 5–15 分钟，期间 服务 不可用；不会自动切回",
+   "eta_s": 600
+  },
+  {
+   "id": "spark:ds2",
+   "machine": "spark-b",
+   "label": "四台 GB10 切到 DeepSeek ×2 + 出片",
+   "confirm": "热切 3–6 分钟，首次约 27 分钟",
+   "eta_s": 300
+  },
+  {
+   "id": "spark:glmfull",
+   "machine": "spark-b",
+   "label": "四台 GB10 切到满血 GLM-5.3",
+   "confirm": "冷启约 9 分钟；会停配音服务；不会自动切回",
+   "eta_s": 540
+  },
+  {
+   "id": "spark:h3quad",
+   "machine": "spark-b",
+   "label": "四台 GB10 全部出片（H3）",
+   "confirm": "GLM 下线；闲 15 分钟自动切回默认档",
+   "eta_s": 30
+  },
+  {
+   "id": "spark:musicquad",
+   "machine": "spark-b",
+   "label": "四台 GB10 全部出歌（YuE2）",
+   "confirm": "GLM 下线约 95 秒切完；闲 15 分钟自动切回默认档",
+   "eta_s": 100
+  },
+  {
+   "id": "spark:dualglm",
+   "machine": "spark-b",
+   "label": "四台 GB10 切到两套 GLM",
+   "confirm": "两套 GLM TP2，出片生图停",
+   "eta_s": 200
+  },
+  {
+   "id": "ws-2080:qwen27b",
+   "machine": "ws-2080",
+   "label": "2080 双卡切到 Qwen3.8 27B（常驻默认）",
+   "confirm": "会停掉卡上正在跑的服务；27B 冷启动 3–20 分钟",
+   "eta_s": 300
+  },
+  {
+   "id": "ws-2080:flashnext",
+   "machine": "ws-2080",
+   "label": "2080 双卡切到 Flash-Next",
+   "confirm": "会停掉 27B；读长文 / 中文总结用",
+   "eta_s": 180
+  },
+  {
+   "id": "ws-2080:h3video",
+   "machine": "ws-2080",
+   "label": "2080 双卡切到 H3 出片",
+   "confirm": "会停掉 27B；出完记得切回",
+   "eta_s": 120
+  },
+  {
+   "id": "ws-2080:h3image",
+   "machine": "ws-2080",
+   "label": "2080 双卡切到 H3 Image 出图",
+   "confirm": "会停掉 27B；出完记得切回",
+   "eta_s": 90
+  },
+  {
+   "id": "ws-4080:h3",
+   "machine": "ws-4080",
+   "label": "Studio 4080 切到 H3 出片",
+   "confirm": "合作方的机器；正在出图 / 语音有连接会自动拒绝",
+   "eta_s": 120
+  },
+  {
+   "id": "ws-4080:image",
+   "machine": "ws-4080",
+   "label": "Studio 4080 切到 Qwen-Image 出图",
+   "confirm": "合作方的机器；正在出片会自动拒绝",
+   "eta_s": 90
+  },
+  {
+   "id": "ws-4080:voice",
+   "machine": "ws-4080",
+   "label": "Studio 4080 切到语音听写",
+   "confirm": "合作方的机器；正在出片 / 出图会自动拒绝",
+   "eta_s": 60
+  },
+  {
+   "id": "cloud-gpu:free",
+   "machine": "cloud-gpu",
+   "label": "Cloud 3080 Ti 释放显存",
+   "confirm": "卸载出图模型、腾出 3080 Ti（下一次出图会自动重新加载）",
+   "eta_s": 10
+  }
+ ],
+ "claude": {
+  "sessions": [
+   {
+    "title": "DASH · 机队仪表盘",
+    "project": "fleet-dash",
+    "age_s": 1260
+   },
+   {
+    "title": "H3 · 分镜与出片",
+    "project": "a100",
+    "age_s": 184
+   },
+   {
+    "title": "GLM · 长文资料整理",
+    "project": "spark-a",
+    "age_s": 864
+   }
+  ],
+  "tasks": [
+   {
+    "title": "短片第 12 镜 · 生成中",
+    "runner": "a100",
+    "status": "running",
+    "age_s": 186
+   },
+   {
+    "title": "产品图 · 第二轮精修",
+    "runner": "cloud-gpu",
+    "status": "running",
+    "age_s": 92
+   },
+   {
+    "title": "资料检索 · 整理结果",
+    "runner": "ws-4060",
+    "status": "running",
+    "age_s": 46
+   }
+  ]
+ },
+ "queue": [
+  {
+   "title": "短片 · 第 12 镜",
+   "machine": "a100",
+   "kind": "video",
+   "state": "running",
+   "age_s": 186
+  },
+  {
+   "title": "产品主图 · 4 张",
+   "machine": "cloud-gpu",
+   "kind": "image",
+   "state": "running",
+   "age_s": 92
+  },
+  {
+   "title": "短片 · 第 13 镜",
+   "machine": "a100",
+   "kind": "video",
+   "state": "queued",
+   "age_s": 64
+  },
+  {
+   "title": "旁白 · 普通话",
+   "machine": "ws-titan",
+   "kind": "voice",
+   "state": "queued",
+   "age_s": 31
+  }
+ ],
+ "decide_pending": 3,
+ "alerts": [
+  {
+   "level": "hot",
+   "machine": "a100",
+   "text": "GPU 0 温度 90℃"
+  },
+  {
+   "level": "warm",
+   "machine": "ws-2080",
+   "text": "2080 Ti ×2 温度 79℃"
+  }
+ ]
+}

@@ -1,0 +1,25 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#04080c"><title>__TITLE__</title><meta name="description" content="家里所有算力的实时机库：状态一眼看清，模型一键切换。"><link rel="icon" href="/assets/brand/icon.svg"><link rel="stylesheet" href="/css/app.css?v=__BUILD__"><script type="importmap">{"imports":{"three":"/vendor/three.module.js?v=__BUILD__","three/addons/":"/vendor/addons/"}}</script></head>
+<body data-view="status"><section id="dashboard" data-slide>
+<div class="stage" id="stage" aria-label="3D 机库"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="bar">
+  <a class="logo" href="#status" aria-label="DASH"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 6h8c12 0 12 20 0 20H7z" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="15" cy="16" r="3.2" fill="#3df2a4"/></svg><span>DASH</span></a>
+  <nav class="tabs" aria-label="页面"><button type="button" data-go="status" aria-current="page">状态<kbd>1</kbd></button><button type="button" data-go="models">模型<kbd>2</kbd></button><i class="tab-ink" aria-hidden="true"></i></nav>
+  <div class="bar-right"><span class="live" id="sync"><i></i>连接中</span><time id="clock">--:--</time></div>
+</header>
+<div class="stale" id="stale" role="status" hidden></div>
+<main class="page page-status" id="page-status" aria-label="机队状态">
+  <div class="kpis" id="kpis"></div>
+  <aside class="rail" id="rail" aria-label="需要注意与进行中"></aside>
+  <div class="legend" aria-hidden="true"><span class="lg normal">正常</span><span class="lg busy">在干活</span><span class="lg warm">偏热</span><span class="lg hot">过热</span><span class="lg offline">离线</span><em>光柱 = 负载 · 光弧 = 数据流向本机 · 点机器看细节</em></div>
+</main>
+<main class="page page-models" id="page-models" aria-label="模型切换台">
+  <div class="mp-head"><p class="kicker">MODEL SWITCHBOARD</p><h1>模型切换台</h1><p class="mp-sub">点一个候选模型，<b>按住 1 秒</b>确认；切换期间这一行显示进度，别的机器不受影响。</p></div>
+  <div class="slots" id="slots"></div>
+  <div class="readonly" id="readonly"></div>
+</main>
+<aside class="drawer" id="drawer" aria-label="机器详情" hidden></aside>
+<div class="hovercard" id="hovercard" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+</section>
+<script>window.__build='__BUILD__';</script><script type="module" src="/js/app.js?v=__BUILD__"></script></body></html>
